@@ -12,13 +12,27 @@
 
 #include "ito_internal.h"
 
-int		add_data_to_package(va_list *args, char op, t_package *package)
+
+
+int		add_data_to_package(va_list *args, char *formatstr, t_package *package)
 {
 	args = NULL;
 	package = NULL;
-	switch(op)
+	switch(*formatstr)
 	{
 		case 'i':
+			break;
+		case 'd':
+			break;
+		case 'u':
+			break;
+		case 'f':
+			break;
+		case 'F':
+			break;
+		case 's':
+			break;
+		case 'c':
 			break;
 		default:
 			handle_error("handle_conversion", "unknown conversion specifier", NULL, ERR_CRIT);

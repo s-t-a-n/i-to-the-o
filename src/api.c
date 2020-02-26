@@ -36,7 +36,7 @@ int     ito_compile_package(t_package *package, const char * restrict formatstr,
 		if (*formatstr == '%')
 		{
 			formatstr++;
-			if(!add_data_to_package(&args, *formatstr, package))
+			if(!add_data_to_package(&args, formatstr, package))
 			{
 				handle_error("ito_compile_package", strerror(errno), NULL, ERR_CRIT);
 				return (ITO_ERROR);

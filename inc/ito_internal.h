@@ -67,7 +67,7 @@ typedef struct      s_package
 ** package_compilation.c
 */
 
-int     add_data_to_package(va_list *args, char op, t_package *package);
+int     add_data_to_package(va_list *args, char *formatstr, t_package *package);
 
 /*
 ** error_handling.c
