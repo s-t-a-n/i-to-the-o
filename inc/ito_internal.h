@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/25 19:12:27 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/02/25 19:18:59 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/02/27 00:21:59 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,17 +19,34 @@
 #include <errno.h>
 #include <string.h>
 
+#include "ito.h"
+
 /*
 ** runtime defines (uncomment to disable behaviour)
 */
-# define ABORT_ON_CRIT_ERROR
+# define EXIT_ON_CRIT_ERROR
+
+/*
+** debugging macros
+** ripped from: https://stackoverflow.com/questions/1644868/define-macro-for-debug-printing-in-c
+*/
+
+# ifndef DEBUG
+#  define DEBUG 0
+# else
+# define DEBUG 1
+# endif
+
+#define log_debug(fmt, ...) \
+            do { if (DEBUG) { fprintf(stdout, "\e[32mInfo:debug\e[39m -> "); fprintf(stdout, fmt, __VA_ARGS__); } } while (0)
 
 /*
 ** global defines
 */
-# define ERR_CRIT		1
-# define ERR_WARN		2
+# define ERR_CRIT		0
+# define ERR_WARN		1
 
+# define LOG_INFO		0
 # define LOG_VERBOSE	1
 # define LOG_DEBUG		2
 
@@ -40,38 +57,20 @@
 # define STDOUT			1
 # define STDERR			2
 
-typedef struct      s_connection
+typedef struct			s_uchar_buffer
 {
-	int				stub;
-}                   t_connection;
-
-typedef struct		s_ito
-{
-	int				stub;
-}					t_ito;
-
-typedef struct		s_ito_specs
-{
-	char			*ip_address;
-	int				pool;
-}					t_ito_specs;
-
-typedef struct      s_package
-{
-    unsigned char   *mem;
-    size_t          count;
-    size_t          index;
-}                   t_package;
+	unsigned char		*mem;
+	int					len;
+}						t_uchar_buffer;
 
 /*
 ** package_compilation.c
 */
 
-int     add_data_to_package(va_list *args, char *formatstr, t_package *package);
+int     add_data_to_package(va_list *args, const char * restrict formatstr, t_package *package);
 
 /*
-** error_handling.c
+** error_and_logging.c
 */
 void    handle_error(char *function, char *err_description, char *extra, int errcode);
-
 #endif

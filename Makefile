@@ -8,7 +8,7 @@ INC_D = inc
 # C source and header files
 SRC =	$(SRC_D)/api.c														\
 		$(SRC_D)/package_compilation.c										\
-		$(SRC_D)/error_handling.c
+		$(SRC_D)/error_and_logging.c
 
 INC =	$(INC_D)/ito.h
 
@@ -36,6 +36,7 @@ CC = clang
 
 # compile flags
 CC_FLAGS = -Werror -Wextra -Wall
+CC_FLAGS_TESTS = -Werror -Wextra -Wall -g -fsanitize=address -DDEBUG
 
 # debugging or optimization flags
 ifeq ($(DEBUG),1)
@@ -46,7 +47,6 @@ endif
 
 # make commands
 all: $(NAME)
-
 
 $(NAME): $(OBJ_D) $(OBJ) $(INC)
 	@$(ECHO) "Linking $(NAME)..."
@@ -65,7 +65,7 @@ $(OBJ_D):
 
 $(OBJ): $(OBJ_D)/%.o: $(SRC_D)/%.c
 	@$(ECHO) "Compiling $<..."
-	@$(CC) -I$(INC_D) -I$(SRC_D)/libft/inc $(CC_FLAGS) -c $< -o $@ 2>$(CC_LOG) 	\
+	@$(CC) $(CC_FLAGS) -I$(INC_D) -I$(SRC_D)/libft/inc -c $< -o $@ 2>$(CC_LOG)	\
 		|| touch $(CC_ERROR)
 	@if test -e $(CC_ERROR); then											\
 		$(ECHO) "$(ERROR_STRING)\n" && $(CAT) $(CC_LOG);					\
@@ -80,9 +80,31 @@ clean:
 	@$(RM) $(OBJ)
 	@$(RM) -r $(OBJ_D)
 
+api_test: TEST='main_api_t'
+api_test: $(NAME)
+	@$(ECHO) "Compiling $(TEST).c..." 2>$(CC_LOG) || touch $(CC_ERROR)
+	@$(CC) $(CC_FLAGS_TESTS) -I$(INC_D) -o $(TEST) tests/$(TEST).c $(NAME)
+	@if test -e $(CC_ERROR); then                                           \
+        $(ECHO) "$(ERROR_STRING)\n" && $(CAT) $(CC_LOG);					\
+    elif test -s $(CC_LOG); then                                            \
+        $(ECHO) "$(WARN_STRING)\n" && $(CAT) $(CC_LOG);                     \
+    else                                                                    \
+        $(ECHO) "$(OK_STRING)\n";                                           \
+    fi
+	@$(ECHO) "Running $(TEST)...\n"
+	@./$(TEST) && $(RM) -f $(TEST) && $(RM) -rf $(TEST).dSYM 2>$(CC_LOG) || touch $(CC_ERROR)
+	@if test -e $(CC_ERROR); then                                           \
+		$(ECHO) "Completed $(TEST): $(ERROR_STRING)\n" && $(CAT) $(CC_LOG);		\
+    elif test -s $(CC_LOG); then											\
+		$(ECHO) "Completed $(TEST): $(WARN_STRING)\n" && $(CAT) $(CC_LOG);		\
+    else                                                                    \
+		$(ECHO) "Completed $(TEST): $(OK_STRING)\n";								\
+    fi
+	@$(RM) -f $(CC_LOG) $(CC_ERROR)
+
 fclean: clean
 	@$(RM) $(NAME)
 
 re: fclean all
 
-.PHONY = all clean fclean re
+.PHONY = all clean fclean re test

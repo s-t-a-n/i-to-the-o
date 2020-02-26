@@ -6,27 +6,27 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/25 17:36:06 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/02/25 21:34:36 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/02/26 23:19:05 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ito_internal.h"
 
-int     ito_validate(t_package *package, const char * restrict formatstr)
+int		ito_validate(t_package *package, const char * restrict formatstr)
 {
 	formatstr = NULL;
 	package = NULL;
 	return (0);
 }
 
-void    *ito_decompile_package(t_package *package, const char * restrict formatstr)
+void	*ito_decompile_package(t_package *package, const char * restrict formatstr)
 {
 	formatstr = NULL;
 	package = NULL;
 	return (NULL);
 }
 
-int     ito_compile_package(t_package *package, const char * restrict formatstr, ...)
+int		ito_compile_package(t_package *package, const char * restrict formatstr, ...)
 {
 	va_list		args;
 
@@ -55,19 +55,19 @@ int		ito_send_package(t_ito *ito, t_package *package)
 	return(0);
 }
 
-t_ito   *ito_quick_init(char *ip)
+t_ito	*ito_quick_init(char *ip)
 {
 	ip = NULL;
 	return (NULL);
 }
 
-t_ito   *ito_full_init(t_ito_specs *ito_specs)
+t_ito	*ito_full_init(t_ito_specs *ito_specs)
 {
 	ito_specs = NULL;
 	return (NULL);
 }
 
-int     ito_shutdown(t_ito *ito)
+int		ito_shutdown(t_ito *ito)
 {
 	ito = NULL;
 	return (0);

@@ -6,16 +6,43 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/23 19:00:56 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/02/25 21:33:04 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/02/27 00:14:11 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef ITO_H
 # define ITO_H
 
+#include <stddef.h>
+
 /*
 ** Include this header to use ITTO.
 */
+
+typedef struct      s_connection
+{
+    int             stub;
+}                   t_connection;
+
+typedef struct      s_ito
+{
+    int             stub;
+}                   t_ito;
+
+typedef struct      s_ito_specs
+{
+    char            *ip_address;
+    int             pool;
+}                   t_ito_specs;
+
+typedef struct      s_package
+{
+    unsigned char   *mem;
+	size_t			mem_size;
+	size_t			mem_cap;
+    size_t          elem_count;
+    size_t          index;
+}                   t_package;
 
 int     ito_validate(t_package *package, const char * restrict formatstr);
 void    *ito_decompile_package(t_package *package, const char * restrict formatstr);
