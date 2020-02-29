@@ -6,18 +6,11 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/25 17:36:06 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/02/29 17:58:57 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/02/29 18:48:18 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ito_internal.h"
-
-int		ito_validate(t_package *package, const char * restrict formatstr)
-{
-	formatstr = NULL;
-	package = NULL;
-	return (0);
-}
 
 void	*ito_decompile_package(t_package *package, const char * restrict formatstr)
 {
@@ -39,7 +32,7 @@ void	*ito_decompile_package(t_package *package, const char * restrict formatstr)
 				elem_ctr++;
 		}
 		if (elem_ctr >= package->elem_count)
-			handle_error("ito_decompile_error", "too many calls for decompilation!", NULL, ERR_CRIT);
+			handle_error("ito_decompile_error", "too many decompilation calls on package!", "/ package has not enough elements for decompilation!", ERR_CRIT);
 		formatstr++;
 	}
 	return (NULL);

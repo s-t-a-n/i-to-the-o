@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/23 19:00:56 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/02/29 15:07:16 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/02/29 18:48:24 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,6 @@ typedef struct		s_package
 	size_t			index;
 }					t_package;
 
-int		ito_validate(t_package *package, const char * restrict formatstr);
 void	*ito_decompile_package(t_package *package, const char * restrict formatstr);
 int		ito_compile_package(t_package *package, const char * restrict formatstr, ...);
 int		ito_send_package(t_ito *ito, t_package *package);
