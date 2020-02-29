@@ -37,11 +37,10 @@ typedef struct      s_ito_specs
 
 typedef struct      s_package
 {
-    unsigned char   *mem;
-	size_t			mem_size;
-	size_t			mem_cap;
-    size_t          elem_count;
-    size_t          index;
+	unsigned char   *mem;
+	size_t		mem_cap;
+	size_t          elem_count;
+	size_t          index;
 }                   t_package;
 
 int     ito_validate(t_package *package, const char * restrict formatstr);

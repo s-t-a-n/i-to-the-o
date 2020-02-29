@@ -12,73 +12,92 @@
 
 #include "ito_internal.h"
 
-static int	conv_int_to_ucharstr(t_uchar_buffer *buffer, signed int var)
+static int	int_snprintf(char *dst, size_t size, void *var)
 {
-	if ((buffer->len = snprintf(NULL, 0, "%i", var)))
-	{
-		if ((buffer->mem = (unsigned char *)malloc(buffer->len + 1)))
-		{
-			if (snprintf((char *)buffer->mem, buffer->len, "%i", var) != buffer->len)
-				free(buffer->mem);
-			else
-				return (0);
-		}
-	}
-	return (1);
+	return(snprintf(dst, size, "%i",*(int *)var));
 }
 
-static int	add_buffer_to_package(t_uchar_buffer *buffer, t_package *package)
+
+static int	add_data_of_type_to_package(int (*f_type_snprintf)(char *, size_t, void *), void *var, t_package *package)
 {
-	if (package->mem_size + buffer->len < package->mem_cap)
+	int		len;
+	unsigned char	*mem_p_cmp;
+
+	len = f_type_snprintf(NULL, 0, var) + 1;
+	if (len > 0)
 	{
-		return (1);
+		if (package->index + len < package->mem_cap)
+		{
+			package->index += f_type_snprintf((char *)&package->mem[package->index], len, var) + 1;
+			(package->elem_count)++;
+		}
+		else if ((package->mem_cap *= 2) < MEMCAP_MAX)
+		{
+			LOG_DEBUG("%s : %s\n","add_data_of_type_to_package", "reallocing package->mem");
+			mem_p_cmp = (unsigned char *)realloc(package->mem, package->mem_cap);
+			if (mem_p_cmp && mem_p_cmp != package->mem)
+			{
+				package->mem = mem_p_cmp;
+				return(add_data_of_type_to_package(f_type_snprintf, var, package));
+			}
+			else
+			{
+				free(mem_p_cmp);
+				handle_error("add_data_of_type_to_package", "realloc failure!", NULL, ERR_WARN);
+			}
+		}
+		else
+		{
+			handle_error("add_data_of_type_to_package", "MEMCAP_MAX exceeded!", NULL, ERR_WARN);
+			return (ITO_ERROR);
+		}
 	}
 	else
-		return (0);
+	{
+		handle_error("add_[data]_to_package", "zero data length!", NULL, ERR_WARN);
+		return (ITO_ERROR);
+	}
+	return (ITO_SUCCESS);
 }
 
 int		add_data_to_package(va_list *args, const char * restrict formatstr,
 		t_package *package)
 {
-	t_uchar_buffer	buffer;
-	int 			error;
+	int	(*f_type_snprintf)(char *, size_t, void *);
 
-	error = 0;
 	switch(*formatstr)
 	{
 		case 'i':
-			log_debug("%s : %s\n","add_data_to_package", "adding SIGNED INT to package");
-			error |= conv_int_to_ucharstr(&buffer, va_arg(*args, signed int));
+			LOG_DEBUG("%s : %s\n","add_data_to_package", "adding SIGNED INT to package");
+			f_type_snprintf = &int_snprintf;
+			int var = va_arg(*args, signed int);
+			return(add_data_of_type_to_package(f_type_snprintf, (void *)&var, package));
 			break;
 		case 'd':
-			log_debug("%s : %s\n","add_data_to_package", "adding SIGNED INT to package");
-			error |= conv_int_to_ucharstr(&buffer, va_arg(*args, signed int));
+			LOG_DEBUG("%s : %s\n","add_data_to_package", "adding SIGNED INT to package");
 			break;
 		case 'u':
-			log_debug("%s : %s\n","add_data_to_package", "adding UNSIGNED INT to package");
+			LOG_DEBUG("%s : %s\n","add_data_to_package", "adding UNSIGNED INT to package");
 			break;
 		case 'f':
-			log_debug("%s : %s\n","add_data_to_package", "adding DOUBLE to package");
+			LOG_DEBUG("%s : %s\n","add_data_to_package", "adding DOUBLE to package");
 			break;
 		case 's':
-			log_debug("%s : %s\n","add_data_to_package", "adding STRING to package");
-			break;
-		case 'c':
-			log_debug("%s : %s\n","add_data_to_package", "adding CHAR to package");
+			LOG_DEBUG("%s : %s\n","add_data_to_package", "adding STRING to package");
 			break;
 		case 'l':
 			if (*(formatstr + 1) == 'i')
 			{
-				log_debug("%s : %s\n","add_data_to_package", "adding SIGNED LONG to package");
+				LOG_DEBUG("%s : %s\n","add_data_to_package", "adding SIGNED LONG to package");
 			}
 			else if (*(formatstr + 1) == 'u')
 			{
-				log_debug("%s : %s\n","add_data_to_package", "adding UNSIGNED LONG to package");
+				LOG_DEBUG("%s : %s\n","add_data_to_package", "adding UNSIGNED LONG to package");
 
 			}
 			else if (*(formatstr + 1) == 'f')
 			{
-				log_debug("%s : %s\n","add_data_to_package", "adding LONG DOUBLE to package");
+				LOG_DEBUG("%s : %s\n","add_data_to_package", "adding LONG DOUBLE to package");
 
 			}
 			break;
@@ -87,8 +106,5 @@ int		add_data_to_package(va_list *args, const char * restrict formatstr,
 					NULL, ERR_CRIT);
 			return (ITO_ERROR);
 	}
-	if (!error && add_buffer_to_package(&buffer, package))
-		return (ITO_SUCCESS);
-	else
-		return (ITO_ERROR);
+	return (ITO_ERROR);
 }

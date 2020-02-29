@@ -22,7 +22,7 @@ void	handle_error(char *function, char *err_description, char *extra, int errcod
 			else
 				dprintf(STDERR, "\e[31mCritical error!\e[39m -> %s : %s\n",
 						function, err_description);
-#ifdef EXIT_ON_CRIT_ERROR
+#if EXIT_ON_CRIT_ERROR == 1
 			exit(ITO_ERROR);
 #endif
 	}

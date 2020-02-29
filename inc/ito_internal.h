@@ -22,9 +22,11 @@
 #include "ito.h"
 
 /*
-** runtime defines (uncomment to disable behaviour)
+** runtime defines
 */
-# define EXIT_ON_CRIT_ERROR
+# define EXIT_ON_CRIT_ERROR 1
+# define MEMCAP_DEF 100
+# define MEMCAP_MAX 1000000 // no bigger than a MEMCAP_MAX (def: 1M) packages are allowed
 
 /*
 ** debugging macros
@@ -37,18 +39,15 @@
 # define DEBUG 1
 # endif
 
-#define log_debug(fmt, ...) \
+#define LOG_DEBUG(fmt, ...) \
             do { if (DEBUG) { fprintf(stdout, "\e[32mInfo:debug\e[39m -> "); fprintf(stdout, fmt, __VA_ARGS__); } } while (0)
 
 /*
 ** global defines
 */
+
 # define ERR_CRIT		0
 # define ERR_WARN		1
-
-# define LOG_INFO		0
-# define LOG_VERBOSE	1
-# define LOG_DEBUG		2
 
 # define ITO_ERROR		-1
 # define ITO_SUCCESS	1
@@ -57,11 +56,19 @@
 # define STDOUT			1
 # define STDERR			2
 
-typedef struct			s_uchar_buffer
+
+/*
+** datatype table
+*/
+/*
+typedef enum e_datatype
 {
-	unsigned char		*mem;
-	int					len;
-}						t_uchar_buffer;
+	SIGNED_INT = signed int,
+	UNSIGNED_INT = unsigned int
+}	t_datatype;
+
+typedef t_compile_op		(char *, t_datatype);
+*/
 
 /*
 ** package_compilation.c

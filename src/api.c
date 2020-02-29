@@ -31,6 +31,11 @@ int		ito_compile_package(t_package *package, const char * restrict formatstr, ..
 	va_list		args;
 
 	va_start(args, formatstr);
+	package->mem_cap = MEMCAP_DEF;
+	package->index = 0;
+	package->elem_count = 0;
+	if (!(package->mem = (unsigned char *)malloc(MEMCAP_DEF + 1)))
+		return (ITO_ERROR);
 	while(*formatstr)
 	{
 		if (*formatstr == '%')
