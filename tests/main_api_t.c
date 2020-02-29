@@ -55,9 +55,11 @@ int		main(int argc, char **argv)
 	char *formatstr = "%f%f%s%i%i%llu%lli";
 	ito_compile_package(&package, formatstr, s_send.x, s_send.y, s_send.name, s_send.id, s_send.flags, s_send.fatty, s_send.sfatty);
 	dump_package(&package);
+	printf("package->elem_count : %zu\n", package.elem_count);
 
 	// U NO ERRROR HANDLE?
 	package.index = 0;
+	package.elem_index = 0;
 	s_recv.x = *(double *)ito_decompile_package(&package, formatstr);
 	s_recv.y = *(double *)ito_decompile_package(&package, formatstr);
 	s_recv.name = (char *)ito_decompile_package(&package, formatstr);
@@ -66,11 +68,12 @@ int		main(int argc, char **argv)
 	s_recv.fatty = *(unsigned long long *)ito_decompile_package(&package, formatstr);
 	s_recv.sfatty = *(long long *)ito_decompile_package(&package, formatstr);
 
+	free(package.mem);
 	ito_compile_package(&package, formatstr, s_recv.x, s_recv.y, s_recv.name, s_recv.id, s_recv.flags, s_send.fatty, s_send.sfatty);
 	dump_package(&package);
 
 	free(package.mem);
-
+	free(s_recv.name);
 	return (0);
 	argc = 0;
 	argv = NULL;

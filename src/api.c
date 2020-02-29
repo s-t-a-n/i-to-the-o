@@ -16,7 +16,7 @@ void	*ito_decompile_package(t_package *package, const char * restrict formatstr)
 {
 	size_t		elem_ctr;
 
-	LOG_DEBUG("%s : %s\n","ito_decompile_package", "decompiling package!");
+	LOG_DEBUG("%s : %s : %s, %s : %zu, %s : %zu\n","ito_decompile_package", "decompiling package using formatstring", formatstr, "element_count", package->elem_count, "element_index", package->elem_index);
 	elem_ctr = 0;
 	while (*formatstr)
 	{
