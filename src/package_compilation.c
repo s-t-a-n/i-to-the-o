@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/25 18:58:07 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/02/29 15:28:03 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/02/29 18:14:44 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,16 @@ static int	long_snprintf(char *dst, size_t size, void *var)
 static int	ulong_snprintf(char *dst, size_t size, void *var)
 {
 	return (snprintf(dst, size, "%lu",*(unsigned long *)var));
+}
+
+static int	long_long_snprintf(char *dst, size_t size, void *var)
+{
+	return (snprintf(dst, size, "%lli",*(signed long long *)var));
+}
+
+static int	ulong_long_snprintf(char *dst, size_t size, void *var)
+{
+	return (snprintf(dst, size, "%llu",*(unsigned long long *)var));
 }
 
 static int	double_snprintf(char *dst, size_t size, void *var)
@@ -148,10 +158,31 @@ int		add_data_to_package(va_list *args, const char * restrict formatstr,
 				long double var7 = va_arg(*args, long double);
 				return (add_data_of_type_to_package(f_type_snprintf, (void *)&var7, package));
 			}
+			else if (*(formatstr + 1) == 'l')
+			{
+				if (*(formatstr + 2) == 'i')
+				{
+					LOG_DEBUG("%s : %s\n","add_data_to_package", "adding SIGNED LONG LONG to package");
+					f_type_snprintf = &long_long_snprintf;
+					long long var8 = va_arg(*args, signed long long);
+					return (add_data_of_type_to_package(f_type_snprintf, (void *)&var8, package));
+				}
+				else if (*(formatstr + 2) == 'u')
+				{
+					LOG_DEBUG("%s : %s\n","add_data_to_package", "adding UNSIGNED LONG LONG to package");
+					f_type_snprintf = &ulong_long_snprintf;
+					unsigned long long var9 = va_arg(*args, unsigned long long);
+					return (add_data_of_type_to_package(f_type_snprintf, (void *)&var9, package));
+				}
+				else
+					handle_error("add_data_to_package", "unknown conversion specifier", NULL, ERR_CRIT);
+			}
+			else
+				handle_error("add_data_to_package", "unknown conversion specifier", NULL, ERR_CRIT);
+
 			break;
 		default:
-			handle_error("add_data_to_package", "unknown conversion specifier",
-					NULL, ERR_CRIT);
+			handle_error("add_data_to_package", "unknown conversion specifier", NULL, ERR_CRIT);
 			return  (ITO_ERROR);
 	}
 	return  (ITO_ERROR);

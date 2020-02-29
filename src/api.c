@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/25 17:36:06 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/02/29 17:17:20 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/02/29 17:58:57 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ void	*ito_decompile_package(t_package *package, const char * restrict formatstr)
 {
 	size_t		elem_ctr;
 
+	LOG_DEBUG("%s : %s\n","ito_decompile_package", "decompiling package!");
 	elem_ctr = 0;
 	while (*formatstr)
 	{

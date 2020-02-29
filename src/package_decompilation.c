@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/29 15:01:30 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/02/29 17:29:32 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/02/29 18:14:18 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,16 @@ static int	ulong_sscanf(const char *src, void *var)
 	return(sscanf(src, "%lu", (unsigned long *)var));
 }
 
+static int	long_long_sscanf(const char *src, void *var)
+{
+	return(sscanf(src, "%lli", (signed long long *)var));
+}
+
+static int	ulong_long_sscanf(const char *src, void *var)
+{
+	return(sscanf(src, "%llu", (unsigned long long *)var));
+}
+
 static int	double_sscanf(const char *src, void *var)
 {
 	return(sscanf(src, "%lf", (double *)var));
@@ -44,14 +54,14 @@ static int	long_double_sscanf(const char *src, void *var)
 
 static void	*get_data_for_type_from_package(int (*f_type_sscanf)(const char *, void *), const char *src, void *var, t_package *package)
 {
-			if (f_type_sscanf(src, var) == 1)
-			{
-				package->index += strnlen(src, package->mem_cap - package->index - 1) + 1;
-				return (var);
-			}
-			else
-				handle_error("get_data_for_type_from_package", "sscanf couldnt extract data", NULL, ERR_WARN);
-			return (NULL);
+	if (f_type_sscanf(src, var) == 1)
+	{
+		package->index += strnlen(src, package->mem_cap - package->index - 1) + 1;
+		return (var);
+	}
+	else
+		handle_error("get_data_for_type_from_package", "sscanf couldnt extract data", NULL, ERR_WARN);
+	return (NULL);
 }
 
 void	*get_data_from_package(const char * restrict formatstr, t_package *package)
@@ -95,9 +105,9 @@ void	*get_data_from_package(const char * restrict formatstr, t_package *package)
 			if (*(formatstr + 1) == 'i')
 			{
 				LOG_DEBUG("%s : %s\n","get_data_from_package", "extracting SIGNED LONG from package");
-			f_type_sscanf = long_sscanf;
-			signed long var5;
-			return (get_data_for_type_from_package(f_type_sscanf, (char *)&package->mem[package->index], (void *)&var5, package));
+				f_type_sscanf = long_sscanf;
+				signed long var5;
+				return (get_data_for_type_from_package(f_type_sscanf, (char *)&package->mem[package->index], (void *)&var5, package));
 			}
 			else if (*(formatstr + 1) == 'u')
 			{
@@ -113,12 +123,34 @@ void	*get_data_from_package(const char * restrict formatstr, t_package *package)
 				long double var7;
 				return (get_data_for_type_from_package(f_type_sscanf, (char *)&package->mem[package->index], (void *)&var7, package));
 			}
+			else if (*(formatstr + 1) == 'l')
+			{
+				if (*(formatstr + 2) == 'i')
+				{
+					LOG_DEBUG("%s : %s\n","get_data_from_package", "extracting SIGNED LONG LONG from package");
+					f_type_sscanf = long_long_sscanf;
+					signed long long var8;
+					return (get_data_for_type_from_package(f_type_sscanf, (char *)&package->mem[package->index], (void *)&var8, package));
+
+				}
+				else if (*(formatstr + 2) == 'u')
+				{
+					LOG_DEBUG("%s : %s\n","get_data_from_package", "extracting UNSIGNED LONG LONG from package");
+					f_type_sscanf = ulong_long_sscanf;
+					unsigned long long var9;
+					return (get_data_for_type_from_package(f_type_sscanf, (char *)&package->mem[package->index], (void *)&var9, package));
+				}
+				else
+					handle_error("get_data_from_package", "unknown conversion specifier", NULL, ERR_CRIT);
+			}
+			else
+					handle_error("get_data_from_package", "unknown conversion specifier", NULL, ERR_CRIT);
+
+
 			break;
 		default:
-			handle_error("get_data_from_package", "unknown conversion specifier",
-					NULL, ERR_CRIT);
+			handle_error("get_data_from_package", "unknown conversion specifier", NULL, ERR_CRIT);
 			return  (NULL);
 	}
 	return  (NULL);
-	package = NULL;
 }
