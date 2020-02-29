@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/25 19:12:27 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/02/27 00:21:59 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/02/29 15:36:14 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@
 # define MEMCAP_MAX 1000000 // no bigger than a MEMCAP_MAX (def: 1M) packages are allowed
 
 /*
-** debugging macros
+** debugging definitions/macros
 ** ripped from: https://stackoverflow.com/questions/1644868/define-macro-for-debug-printing-in-c
 */
 
@@ -56,28 +56,18 @@
 # define STDOUT			1
 # define STDERR			2
 
-
-/*
-** datatype table
-*/
-/*
-typedef enum e_datatype
-{
-	SIGNED_INT = signed int,
-	UNSIGNED_INT = unsigned int
-}	t_datatype;
-
-typedef t_compile_op		(char *, t_datatype);
-*/
-
 /*
 ** package_compilation.c
 */
 
-int     add_data_to_package(va_list *args, const char * restrict formatstr, t_package *package);
+int		add_data_to_package(va_list *args, const char * restrict formatstr, t_package *package);
 
+/*
+** package_decompilation.c
+*/
+void	*get_data_from_package(const char * restrict formatstr, t_package *package);
 /*
 ** error_and_logging.c
 */
-void    handle_error(char *function, char *err_description, char *extra, int errcode);
+void	handle_error(char *function, char *err_description, char *extra, int errcode);
 #endif

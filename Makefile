@@ -8,6 +8,7 @@ INC_D = inc
 # C source and header files
 SRC =	$(SRC_D)/api.c														\
 		$(SRC_D)/package_compilation.c										\
+		$(SRC_D)/package_decompilation.c									\
 		$(SRC_D)/error_and_logging.c
 
 INC =	$(INC_D)/ito.h

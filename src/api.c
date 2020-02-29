@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/25 17:36:06 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/02/26 23:19:05 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/02/29 17:17:20 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,26 @@ int		ito_validate(t_package *package, const char * restrict formatstr)
 
 void	*ito_decompile_package(t_package *package, const char * restrict formatstr)
 {
-	formatstr = NULL;
-	package = NULL;
+	size_t		elem_ctr;
+
+	elem_ctr = 0;
+	while (*formatstr)
+	{
+		if (*formatstr == '%')
+		{
+			if (elem_ctr >= package->elem_index)
+			{
+				formatstr++;
+				(package->elem_index)++;
+				return(get_data_from_package(formatstr, package));
+			}
+			else
+				elem_ctr++;
+		}
+		if (elem_ctr >= package->elem_count)
+			handle_error("ito_decompile_error", "too many calls for decompilation!", NULL, ERR_CRIT);
+		formatstr++;
+	}
 	return (NULL);
 }
 
@@ -30,6 +48,7 @@ int		ito_compile_package(t_package *package, const char * restrict formatstr, ..
 {
 	va_list		args;
 
+	LOG_DEBUG("%s : %s\n","ito_compile_package", "compiling package!");
 	va_start(args, formatstr);
 	package->mem_cap = MEMCAP_DEF;
 	package->index = 0;

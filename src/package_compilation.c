@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/25 18:58:07 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/02/27 00:31:00 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/02/29 15:28:03 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,38 @@
 
 static int	int_snprintf(char *dst, size_t size, void *var)
 {
-	return(snprintf(dst, size, "%i",*(int *)var));
+	return (snprintf(dst, size, "%i",*(signed int *)var));
 }
 
+static int	uint_snprintf(char *dst, size_t size, void *var)
+{
+	return (snprintf(dst, size, "%u",*(unsigned int *)var));
+}
+
+static int	long_snprintf(char *dst, size_t size, void *var)
+{
+	return (snprintf(dst, size, "%li",*(signed long *)var));
+}
+
+static int	ulong_snprintf(char *dst, size_t size, void *var)
+{
+	return (snprintf(dst, size, "%lu",*(unsigned long *)var));
+}
+
+static int	double_snprintf(char *dst, size_t size, void *var)
+{
+	return (snprintf(dst, size, "%f",*(double *)var));
+}
+
+static int	long_double_snprintf(char *dst, size_t size, void *var)
+{
+	return (snprintf(dst, size, "%Lf",*(long double *)var));
+}
+
+static int	string_snprintf(char *dst, size_t size, void *var)
+{
+	return (snprintf(dst, size, "%s",(char *)var));
+}
 
 static int	add_data_of_type_to_package(int (*f_type_snprintf)(char *, size_t, void *), void *var, t_package *package)
 {
@@ -38,7 +67,7 @@ static int	add_data_of_type_to_package(int (*f_type_snprintf)(char *, size_t, vo
 			if (mem_p_cmp && mem_p_cmp != package->mem)
 			{
 				package->mem = mem_p_cmp;
-				return(add_data_of_type_to_package(f_type_snprintf, var, package));
+				return (add_data_of_type_to_package(f_type_snprintf, var, package));
 			}
 			else
 			{
@@ -49,15 +78,15 @@ static int	add_data_of_type_to_package(int (*f_type_snprintf)(char *, size_t, vo
 		else
 		{
 			handle_error("add_data_of_type_to_package", "MEMCAP_MAX exceeded!", NULL, ERR_WARN);
-			return (ITO_ERROR);
+			return  (ITO_ERROR);
 		}
 	}
 	else
 	{
 		handle_error("add_[data]_to_package", "zero data length!", NULL, ERR_WARN);
-		return (ITO_ERROR);
+		return  (ITO_ERROR);
 	}
-	return (ITO_SUCCESS);
+	return  (ITO_SUCCESS);
 }
 
 int		add_data_to_package(va_list *args, const char * restrict formatstr,
@@ -71,40 +100,59 @@ int		add_data_to_package(va_list *args, const char * restrict formatstr,
 			LOG_DEBUG("%s : %s\n","add_data_to_package", "adding SIGNED INT to package");
 			f_type_snprintf = &int_snprintf;
 			int var = va_arg(*args, signed int);
-			return(add_data_of_type_to_package(f_type_snprintf, (void *)&var, package));
+			return (add_data_of_type_to_package(f_type_snprintf, (void *)&var, package));
 			break;
 		case 'd':
 			LOG_DEBUG("%s : %s\n","add_data_to_package", "adding SIGNED INT to package");
+			f_type_snprintf = &int_snprintf;
+			int var1 = va_arg(*args, signed int);
+			return (add_data_of_type_to_package(f_type_snprintf, (void *)&var1, package));
 			break;
 		case 'u':
 			LOG_DEBUG("%s : %s\n","add_data_to_package", "adding UNSIGNED INT to package");
+			f_type_snprintf = &uint_snprintf;
+			unsigned int var2 = va_arg(*args, unsigned int);
+			return (add_data_of_type_to_package(f_type_snprintf, (void *)&var2, package));
 			break;
 		case 'f':
 			LOG_DEBUG("%s : %s\n","add_data_to_package", "adding DOUBLE to package");
+			f_type_snprintf = &double_snprintf;
+			double var3 = va_arg(*args, double);
+			return (add_data_of_type_to_package(f_type_snprintf, (void *)&var3, package));
 			break;
 		case 's':
 			LOG_DEBUG("%s : %s\n","add_data_to_package", "adding STRING to package");
+			f_type_snprintf = &string_snprintf;
+			char  *var4 = va_arg(*args, char *);
+			return (add_data_of_type_to_package(f_type_snprintf, (void *)var4, package));
 			break;
 		case 'l':
 			if (*(formatstr + 1) == 'i')
 			{
 				LOG_DEBUG("%s : %s\n","add_data_to_package", "adding SIGNED LONG to package");
+				f_type_snprintf = &long_snprintf;
+				long var5 = va_arg(*args, signed long);
+				return (add_data_of_type_to_package(f_type_snprintf, (void *)&var5, package));
 			}
 			else if (*(formatstr + 1) == 'u')
 			{
 				LOG_DEBUG("%s : %s\n","add_data_to_package", "adding UNSIGNED LONG to package");
-
+				f_type_snprintf = &ulong_snprintf;
+				unsigned long var6 = va_arg(*args, unsigned long);
+				return (add_data_of_type_to_package(f_type_snprintf, (void *)&var6, package));
 			}
 			else if (*(formatstr + 1) == 'f')
 			{
 				LOG_DEBUG("%s : %s\n","add_data_to_package", "adding LONG DOUBLE to package");
-
+				f_type_snprintf = &long_double_snprintf;
+				long double var7 = va_arg(*args, long double);
+				return (add_data_of_type_to_package(f_type_snprintf, (void *)&var7, package));
 			}
 			break;
 		default:
-			handle_error("handle_conversion", "unknown conversion specifier",
+			handle_error("add_data_to_package", "unknown conversion specifier",
 					NULL, ERR_CRIT);
-			return (ITO_ERROR);
+			return  (ITO_ERROR);
 	}
-	return (ITO_ERROR);
+	return  (ITO_ERROR);
 }
