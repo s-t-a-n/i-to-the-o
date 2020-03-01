@@ -12,9 +12,10 @@
 
 #include "ito_internal.h"
 
-void	*ito_decompile_package(t_package *package, const char * restrict formatstr)
+int	ito_decompile_package(t_package *package, const char * restrict formatstr, ...)
 {
 	size_t		elem_ctr;
+	va_list		args;
 
 	LOG_DEBUG("%s : %s : %s, %s : %zu, %s : %zu\n","ito_decompile_package", "decompiling package using formatstring", formatstr, "element_count", package->elem_count, "element_index", package->elem_index);
 	elem_ctr = 0;
@@ -26,7 +27,7 @@ void	*ito_decompile_package(t_package *package, const char * restrict formatstr)
 			{
 				formatstr++;
 				(package->elem_index)++;
-				return(get_data_from_package(formatstr, package));
+				return(get_data_from_package(&args, formatstr, package));
 			}
 			else
 				elem_ctr++;
@@ -35,7 +36,8 @@ void	*ito_decompile_package(t_package *package, const char * restrict formatstr)
 			handle_error("ito_decompile_error", "too many decompilation calls on package!", "/ package has not enough elements for decompilation!", ERR_CRIT);
 		formatstr++;
 	}
-	return (NULL);
+	va_end(args);
+	return(ITO_SUCCESS);
 }
 
 int		ito_compile_package(t_package *package, const char * restrict formatstr, ...)
@@ -47,6 +49,8 @@ int		ito_compile_package(t_package *package, const char * restrict formatstr, ..
 	package->mem_cap = MEMCAP_DEF;
 	package->index = 0;
 	package->elem_count = 0;
+	if (!(initialise_package(package)))
+		return(ITO_ERROR);
 	if (!(package->mem = (unsigned char *)malloc(MEMCAP_DEF + 1)))
 		return (ITO_ERROR);
 	while(*formatstr)
@@ -75,6 +79,8 @@ int		ito_send_package(t_ito *ito, t_package *package)
 
 t_ito	*ito_quick_init(char *ip)
 {
+	//t_ito	ito;
+
 	ip = NULL;
 	return (NULL);
 }

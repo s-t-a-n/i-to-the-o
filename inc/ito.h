@@ -35,13 +35,27 @@ typedef struct		s_ito_specs
     int				pool;
 }					t_ito_specs;
 
+typedef enum		e_datatype
+{
+	SIGNED_INT = 0,
+	UNSIGNED_INT = 1,
+	SIGNED_LONG = 2,
+	UNSIGNED_LONG = 3,
+	SIGNED_LONG_LONG = 4,
+	UNSIGNED_LONG_LONG = 5,
+	DOUBLE = 6,
+	LONG_DOUBLE = 7,
+	STRING = 8
+}			t_datatype;
+
 typedef struct		s_package
 {
-	unsigned char	*mem;
+	unsigned char		*mem;
 	size_t			mem_cap;
 	size_t			elem_count;
 	size_t			elem_index;
 	size_t			index;
+	t_datatype		*types;
 }					t_package;
 
 void	*ito_decompile_package(t_package *package, const char * restrict formatstr);
