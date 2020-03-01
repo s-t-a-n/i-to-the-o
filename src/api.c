@@ -6,11 +6,11 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/25 17:36:06 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/01 20:16:16 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/01 22:41:00 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ito_internal.h"
+#include "packaging.h"
 
 int	ito_decompile_package(t_package *package, const char * restrict formatstr, ...)
 {
@@ -71,6 +71,7 @@ int		ito_send_package(t_ito *ito, t_package *package)
 	return(0);
 }
 
+// if 255.255.255.255 broadcast to local network and find clients
 t_ito	*ito_quick_init(char *ip)
 {
 	//t_ito	ito;

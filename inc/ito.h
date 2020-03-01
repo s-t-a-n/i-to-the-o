@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/23 19:00:56 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/01 19:44:42 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/01 22:34:49 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,18 +16,8 @@
 #include <stddef.h>
 
 /*
-** Include this header to use ITTO.
+** Include this header to use ITO.
 */
-
-typedef struct		s_connection
-{
-    int				stub;
-}					t_connection;
-
-typedef struct		s_ito
-{
-    int				stub;
-}					t_ito;
 
 typedef struct		s_ito_specs
 {
@@ -35,35 +25,26 @@ typedef struct		s_ito_specs
     int				pool;
 }					t_ito_specs;
 
-/*
-typedef enum		e_datatype
+typedef struct		s_ito
 {
-	SIGNED_INT = 0,
-	UNSIGNED_INT = 1,
-	SIGNED_LONG = 2,
-	UNSIGNED_LONG = 3,
-	SIGNED_LONG_LONG = 4,
-	UNSIGNED_LONG_LONG = 5,
-	DOUBLE = 6,
-	LONG_DOUBLE = 7,
-	STRING = 8
-}			t_datatype;
-*/
+	t_ito_specs		ito_specs;
+}					t_ito;
+
 
 typedef struct		s_package
 {
-	unsigned char		*mem;
+	unsigned char	*mem;
 	size_t			mem_cap;
 	size_t			index;
 }					t_package;
 
-int		ito_decompile_package(t_package *package, const char * restrict formatstr, ...);
-int		ito_compile_package(t_package *package, const char * restrict formatstr, ...);
-int		ito_send_package(t_ito *ito, t_package *package);
+int					ito_decompile_package(t_package *package, const char * restrict formatstr, ...);
+int					ito_compile_package(t_package *package, const char * restrict formatstr, ...);
+int					ito_send_package(t_ito *ito, t_package *package);
 
-t_ito	*ito_quick_init(char *ip);
-t_ito	*ito_full_init(t_ito_specs *ito_specs);
-int		ito_shutdown(t_ito *ito);
-int		ito_hook(t_ito *ito, int (*f_ptr)(), void *param);
+t_ito				*ito_quick_init(char *ip);
+t_ito				*ito_full_init(t_ito_specs *ito_specs);
+int					ito_shutdown(t_ito *ito);
+int					ito_hook(t_ito *ito, int (*f_ptr)(), void *param);
 
 #endif

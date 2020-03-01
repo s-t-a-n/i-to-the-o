@@ -7,11 +7,18 @@ INC_D = inc
 
 # C source and header files
 SRC =	$(SRC_D)/api.c														\
-		$(SRC_D)/package_compilation.c										\
-		$(SRC_D)/package_decompilation.c									\
-		$(SRC_D)/error_and_logging.c
+		$(SRC_D)/error_and_logging.c										\
+		$(SRC_D)/packaging/package_compilation.c							\
+		$(SRC_D)/packaging/package_decompilation.c							\
+		$(SRC_D)/networking/initialisation.c								\
+		$(SRC_D)/networking/client.c										\
+		$(SRC_D)/networking/server.c
 
-INC =	$(INC_D)/ito.h
+
+INC =	$(INC_D)/ito.h														\
+		$(INC_D)/ito_internal.h												\
+		$(INC_D)/packaging.h												\
+		$(INC_D)/networking.h
 
 OBJ :=	$(SRC:$(SRC_D)/%.c=$(OBJ_D)/%.o)
 
@@ -63,6 +70,8 @@ $(NAME): $(OBJ_D) $(OBJ) $(INC)
 
 $(OBJ_D):
 	@mkdir -p $(OBJ_D)
+	@mkdir -p $(OBJ_D)/packaging
+	@mkdir -p $(OBJ_D)/networking
 
 $(OBJ): $(OBJ_D)/%.o: $(SRC_D)/%.c
 	@$(ECHO) "Compiling $<..."
