@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/25 19:12:27 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/02/29 15:36:14 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/01 20:09:31 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ int		add_data_to_package(va_list *args, const char * restrict formatstr, t_packa
 /*
 ** package_decompilation.c
 */
-void	*get_data_from_package(const char * restrict formatstr, t_package *package);
+int		get_data_from_package(va_list *args, const char * restrict formatstr, t_package *package);
 /*
 ** error_and_logging.c
 */

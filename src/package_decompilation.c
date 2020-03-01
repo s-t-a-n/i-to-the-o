@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/29 15:01:30 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/02/29 18:14:18 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/01 20:21:09 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,105 +52,78 @@ static int	long_double_sscanf(const char *src, void *var)
 	return(sscanf(src, "%Lf", (long double *)var));
 }
 
-static void	*get_data_for_type_from_package(int (*f_type_sscanf)(const char *, void *), const char *src, void *var, t_package *package)
+static int	get_data_of_type_from_package(int (*f_type_sscanf)(const char *, void *), const char *src, void *var, t_package *package)
 {
 	if (f_type_sscanf(src, var) == 1)
 	{
 		package->index += strnlen(src, package->mem_cap - package->index - 1) + 1;
-		return (var);
+		return (1);
 	}
 	else
-		handle_error("get_data_for_type_from_package", "sscanf couldnt extract data", NULL, ERR_WARN);
-	return (NULL);
+		handle_error("get_data_of_type_from_package", "sscanf couldnt extract data", NULL, ERR_WARN);
+	return (0);
 }
 
-void	*get_data_from_package(const char * restrict formatstr, t_package *package)
+int			get_data_from_package(va_list *args, const char * restrict formatstr, t_package *package)
 {
-	int	(*f_type_sscanf)(const char *, void *);
-
 	switch(*formatstr)
 	{
 		case 'i':
 			LOG_DEBUG("%s : %s\n","get_data_from_package", "extracting SIGNED INT from package");
-			f_type_sscanf = int_sscanf;
-			int var;
-			return (get_data_for_type_from_package(f_type_sscanf, (char *)&package->mem[package->index], (void *)&var, package));
-			break;
+			return (get_data_of_type_from_package(int_sscanf, (char *)&package->mem[package->index], (void *)va_arg(*args, signed int *), package));
 		case 'd':
 			LOG_DEBUG("%s : %s\n","get_data_from_package", "extracting SIGNED INT from package");
-			f_type_sscanf = int_sscanf;
-			int var1;
-			return (get_data_for_type_from_package(f_type_sscanf, (char *)&package->mem[package->index], (void *)&var1, package));
-			break;
+			return (get_data_of_type_from_package(int_sscanf, (char *)&package->mem[package->index], (void *)va_arg(*args, signed int *), package));
 		case 'u':
 			LOG_DEBUG("%s : %s\n","get_data_from_package", "extracting UNSIGNED INT from package");
-			f_type_sscanf = uint_sscanf;
-			unsigned int var2;
-			return (get_data_for_type_from_package(f_type_sscanf, (char *)&package->mem[package->index], (void *)&var2, package));
-			break;
+			return (get_data_of_type_from_package(uint_sscanf, (char *)&package->mem[package->index], (void *)va_arg(*args, unsigned int *), package));
 		case 'f':
 			LOG_DEBUG("%s : %s\n","get_data_from_package", "extracting DOUBLE from package");
-			f_type_sscanf = double_sscanf;
-			double var3;
-			return (get_data_for_type_from_package(f_type_sscanf, (char *)&package->mem[package->index], (void *)&var3, package));
-			break;
+			return (get_data_of_type_from_package(double_sscanf, (char *)&package->mem[package->index], (void *)va_arg(*args, double *), package));
 		case 's':
 			LOG_DEBUG("%s : %s\n","get_data_from_package", "extracting STRING from package");
-			char *var4;
-			var4 = strndup((char *)&package->mem[package->index], package->mem_cap - package->index - 1);
+			char **ptr = va_arg(*args, char **);
+			*ptr = strndup((char *)&package->mem[package->index], package->mem_cap - package->index - 1);
 			package->index += strnlen((char *)&package->mem[package->index], package->mem_cap - package->index - 1) + 1;
-			return (void *)var4;
-			break;
+			return (*ptr != NULL);
 		case 'l':
 			if (*(formatstr + 1) == 'i')
 			{
 				LOG_DEBUG("%s : %s\n","get_data_from_package", "extracting SIGNED LONG from package");
-				f_type_sscanf = long_sscanf;
-				signed long var5;
-				return (get_data_for_type_from_package(f_type_sscanf, (char *)&package->mem[package->index], (void *)&var5, package));
+				return (get_data_of_type_from_package(long_sscanf, (char *)&package->mem[package->index], (void *)va_arg(*args, signed long), package));
 			}
 			else if (*(formatstr + 1) == 'u')
 			{
 				LOG_DEBUG("%s : %s\n","get_data_from_package", "extracting UNSIGNED LONG from package");
-				f_type_sscanf = ulong_sscanf;
-				unsigned long var6;
-				return (get_data_for_type_from_package(f_type_sscanf, (char *)&package->mem[package->index], (void *)&var6, package));
+				return (get_data_of_type_from_package(ulong_sscanf, (char *)&package->mem[package->index], (void *)va_arg(*args, unsigned long *), package));
 			}
 			else if (*(formatstr + 1) == 'f')
 			{
 				LOG_DEBUG("%s : %s\n","get_data_from_package", "extracting LONG DOUBLE from package");
-				f_type_sscanf = long_double_sscanf;
-				long double var7;
-				return (get_data_for_type_from_package(f_type_sscanf, (char *)&package->mem[package->index], (void *)&var7, package));
+				return (get_data_of_type_from_package(long_double_sscanf, (char *)&package->mem[package->index], (void *)va_arg(*args, long double *), package));
 			}
 			else if (*(formatstr + 1) == 'l')
 			{
 				if (*(formatstr + 2) == 'i')
 				{
 					LOG_DEBUG("%s : %s\n","get_data_from_package", "extracting SIGNED LONG LONG from package");
-					f_type_sscanf = long_long_sscanf;
-					signed long long var8;
-					return (get_data_for_type_from_package(f_type_sscanf, (char *)&package->mem[package->index], (void *)&var8, package));
+					return (get_data_of_type_from_package(long_long_sscanf, (char *)&package->mem[package->index], (void *)va_arg(*args, signed long long *), package));
 
 				}
 				else if (*(formatstr + 2) == 'u')
 				{
 					LOG_DEBUG("%s : %s\n","get_data_from_package", "extracting UNSIGNED LONG LONG from package");
-					f_type_sscanf = ulong_long_sscanf;
-					unsigned long long var9;
-					return (get_data_for_type_from_package(f_type_sscanf, (char *)&package->mem[package->index], (void *)&var9, package));
+					return (get_data_of_type_from_package(ulong_long_sscanf, (char *)&package->mem[package->index], (void *)va_arg(*args, unsigned long long *), package));
 				}
 				else
 					handle_error("get_data_from_package", "unknown conversion specifier", NULL, ERR_CRIT);
 			}
 			else
 					handle_error("get_data_from_package", "unknown conversion specifier", NULL, ERR_CRIT);
-
-
 			break;
 		default:
 			handle_error("get_data_from_package", "unknown conversion specifier", NULL, ERR_CRIT);
-			return  (NULL);
+			return  (ITO_ERROR);
 	}
-	return  (NULL);
+	return  (ITO_ERROR);
 }

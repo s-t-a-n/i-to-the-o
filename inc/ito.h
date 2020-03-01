@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/23 19:00:56 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/02/29 18:48:24 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/01 19:44:42 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ typedef struct		s_ito_specs
     int				pool;
 }					t_ito_specs;
 
+/*
 typedef enum		e_datatype
 {
 	SIGNED_INT = 0,
@@ -47,18 +48,16 @@ typedef enum		e_datatype
 	LONG_DOUBLE = 7,
 	STRING = 8
 }			t_datatype;
+*/
 
 typedef struct		s_package
 {
 	unsigned char		*mem;
 	size_t			mem_cap;
-	size_t			elem_count;
-	size_t			elem_index;
 	size_t			index;
-	t_datatype		*types;
 }					t_package;
 
-void	*ito_decompile_package(t_package *package, const char * restrict formatstr);
+int		ito_decompile_package(t_package *package, const char * restrict formatstr, ...);
 int		ito_compile_package(t_package *package, const char * restrict formatstr, ...);
 int		ito_send_package(t_ito *ito, t_package *package);
 

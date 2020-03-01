@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/25 18:58:07 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/02/29 18:18:57 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/01 20:14:53 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ static int	add_data_of_type_to_package(int (*f_type_snprintf)(char *, size_t, vo
 		if (package->index + len < package->mem_cap)
 		{
 			package->index += f_type_snprintf((char *)&package->mem[package->index], len, var) + 1;
-			(package->elem_count)++;
+			//(package->elem_count)++;
 		}
 		else if ((package->mem_cap *= 2) < MEMCAP_MAX)
 		{
@@ -111,31 +111,26 @@ int		add_data_to_package(va_list *args, const char * restrict formatstr,
 			f_type_snprintf = &int_snprintf;
 			int var = va_arg(*args, signed int);
 			return (add_data_of_type_to_package(f_type_snprintf, (void *)&var, package));
-			break;
 		case 'd':
 			LOG_DEBUG("%s : %s\n","add_data_to_package", "adding SIGNED INT to package");
 			f_type_snprintf = &int_snprintf;
 			int var1 = va_arg(*args, signed int);
 			return (add_data_of_type_to_package(f_type_snprintf, (void *)&var1, package));
-			break;
 		case 'u':
 			LOG_DEBUG("%s : %s\n","add_data_to_package", "adding UNSIGNED INT to package");
 			f_type_snprintf = &uint_snprintf;
 			unsigned int var2 = va_arg(*args, unsigned int);
 			return (add_data_of_type_to_package(f_type_snprintf, (void *)&var2, package));
-			break;
 		case 'f':
 			LOG_DEBUG("%s : %s\n","add_data_to_package", "adding DOUBLE to package");
 			f_type_snprintf = &double_snprintf;
 			double var3 = va_arg(*args, double);
 			return (add_data_of_type_to_package(f_type_snprintf, (void *)&var3, package));
-			break;
 		case 's':
 			LOG_DEBUG("%s : %s\n","add_data_to_package", "adding STRING to package");
 			f_type_snprintf = &string_snprintf;
 			char  *var4 = va_arg(*args, char *);
 			return (add_data_of_type_to_package(f_type_snprintf, (void *)var4, package));
-			break;
 		case 'l':
 			if (*(formatstr + 1) == 'i')
 			{
