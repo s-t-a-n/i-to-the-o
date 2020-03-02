@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/25 19:12:27 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/01 21:45:46 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/02 23:35:58 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,13 @@
 ** debugging definitions/macros
 ** ripped from: https://stackoverflow.com/questions/1644868/define-macro-for-debug-printing-in-c
 */
+
+# ifndef SILENT
+#  define VERBOSE 1
+# else
+#  define VERBOSE 0
+# endif
+
 # ifndef DEBUG
 #  define DEBUG 0
 # else
@@ -39,7 +46,10 @@
 # endif
 
 #define LOG_DEBUG(fmt, ...) \
-            do { if (DEBUG) { fprintf(stdout, "\e[32mInfo:debug\e[39m -> "); fprintf(stdout, fmt, __VA_ARGS__); } } while (0)
+            do { if (DEBUG) { fprintf(stdout, "\e[32mDebug:\e[39m -> "); fprintf(stdout, fmt, __VA_ARGS__); } } while (0)
+
+#define LOG_VERBOSE(fmt, ...) \
+            do { if (VERBOSE) { fprintf(stdout, "\e[32mInfo:\e[39m -> "); fprintf(stdout, fmt, __VA_ARGS__); } } while (0)
 
 /*
 ** global defines

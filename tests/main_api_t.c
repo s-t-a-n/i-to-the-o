@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/26 20:34:29 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/01 20:17:26 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/02 21:19:45 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ void		dump_package(t_package *package)
 	}
 }
 
-int		main(int argc, char **argv)
+int		main(void)
 {
 	t_package package;
 	t_data		s_send;
@@ -64,6 +64,4 @@ int		main(int argc, char **argv)
 	free(package.mem);
 	free(s_recv.name);
 	return (0);
-	argc = 0;
-	argv = NULL;
 }

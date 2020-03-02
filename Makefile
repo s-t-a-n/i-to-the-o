@@ -10,9 +10,9 @@ SRC =	$(SRC_D)/api.c														\
 		$(SRC_D)/error_and_logging.c										\
 		$(SRC_D)/packaging/package_compilation.c							\
 		$(SRC_D)/packaging/package_decompilation.c							\
-		$(SRC_D)/networking/initialisation.c								\
 		$(SRC_D)/networking/client.c										\
-		$(SRC_D)/networking/server.c
+		$(SRC_D)/networking/server.c										\
+		$(SRC_D)/networking/queue.c
 
 
 INC =	$(INC_D)/ito.h														\
@@ -92,6 +92,28 @@ clean:
 
 api_test: TEST='main_api_t'
 api_test: $(NAME)
+	@$(ECHO) "Compiling $(TEST).c..." 2>$(CC_LOG) || touch $(CC_ERROR)
+	@$(CC) $(CC_FLAGS_TESTS) -I$(INC_D) -o $(TEST) tests/$(TEST).c $(NAME)
+	@if test -e $(CC_ERROR); then                                           \
+        $(ECHO) "$(ERROR_STRING)\n" && $(CAT) $(CC_LOG);					\
+    elif test -s $(CC_LOG); then                                            \
+        $(ECHO) "$(WARN_STRING)\n" && $(CAT) $(CC_LOG);                     \
+    else                                                                    \
+        $(ECHO) "$(OK_STRING)\n";                                           \
+    fi
+	@$(ECHO) "Running $(TEST)...\n"
+	@./$(TEST) && $(RM) -f $(TEST) && $(RM) -rf $(TEST).dSYM 2>$(CC_LOG) || touch $(CC_ERROR)
+	@if test -e $(CC_ERROR); then                                           \
+		$(ECHO) "Completed $(TEST): $(ERROR_STRING)\n" && $(CAT) $(CC_LOG);		\
+    elif test -s $(CC_LOG); then											\
+		$(ECHO) "Completed $(TEST): $(WARN_STRING)\n" && $(CAT) $(CC_LOG);		\
+    else                                                                    \
+		$(ECHO) "Completed $(TEST): $(OK_STRING)\n";								\
+    fi
+	@$(RM) -f $(CC_LOG) $(CC_ERROR)
+
+server_test: TEST='main_server_t'
+server_test: $(NAME)
 	@$(ECHO) "Compiling $(TEST).c..." 2>$(CC_LOG) || touch $(CC_ERROR)
 	@$(CC) $(CC_FLAGS_TESTS) -I$(INC_D) -o $(TEST) tests/$(TEST).c $(NAME)
 	@if test -e $(CC_ERROR); then                                           \
