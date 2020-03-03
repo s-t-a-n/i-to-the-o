@@ -55,6 +55,7 @@ int		ito_compile_package(t_package *package, const char * restrict formatstr, ..
 			if(!add_data_to_package(&args, formatstr, package))
 			{
 				handle_error("ito_compile_package", strerror(errno), NULL, ERR_CRIT);
+				free(package->mem);
 				return (ITO_ERROR);
 			}
 		}
