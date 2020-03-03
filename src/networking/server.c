@@ -14,7 +14,7 @@
 
 static int		process_request(int descriptor, t_server *server)
 {
-	LOG_DEBUG("%s\n", "processing request!");
+	LOG_DEBUG("Thread %lu : %s\n", pthread_self(), "processing request!");
 	server = NULL;
 	descriptor = 2;
 	return (0);
@@ -46,7 +46,7 @@ static void		*worker_incoming(void *arg)
 	}
 	else
 	{
-		LOG_VERBOSE("%s\n", "server is accepting requests!");
+		LOG_VERBOSE("Thread : %lu, %s\n", pthread_self(), "server is accepting requests!");
 		while (server->state == NT_STATE_READY)
 		{
 			descriptor = accept(server->socket, (struct sockaddr *)NULL, NULL);
