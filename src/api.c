@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/25 17:36:06 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/01 22:41:00 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/03 22:02:00 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,6 @@ int		ito_send_package(t_ito *ito, t_package *package)
 t_ito	*ito_quick_init(char *ip)
 {
 	//t_ito	ito;
-
 	ip = NULL;
 	return (NULL);
 }

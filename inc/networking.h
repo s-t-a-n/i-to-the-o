@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/01 21:43:08 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/02 23:43:47 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/04 00:38:29 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,10 @@
 
 # define NT_PORT			4200
 
-# define NT_QUEUE_CAP		20 // maximum number of pending requests
+# define NT_QUEUE_CAP		30 // maximum number of pending requests
 # define NT_QUEUE_BACKLOG	10
 
-# define NT_WORKERS_DEF		5  // an extra thread is spawned for handling incoming
+# define NT_WORKERS_DEF		3  // an extra thread is spawned for handling incoming
 # define NT_WORKERS_MAX		20 // maximum number of threads to spin up
 
 # define NT_BUF_SIZE		1024
@@ -53,6 +53,12 @@ typedef struct				s_member
 	t_package				package;
 }							t_member;
 
+typedef struct				s_package_enroute
+{
+	struct in_addr			sin_addr;
+	t_package				*package;
+}							t_package_enroute;
+
 typedef struct				s_queue
 {
 	pthread_mutex_t			lock;
@@ -61,7 +67,7 @@ typedef struct				s_queue
 	int						size;
 	int						front;
 	int						back;
-	int						*elements;
+	void					**elements;
 }							t_queue;
 
 typedef struct				s_server
@@ -74,15 +80,36 @@ typedef struct				s_server
 	int						state;
 }							t_server;
 
+typedef struct				s_client
+{
+	pthread_t				*thread_tab;
+	t_queue					*queue;
+	t_member				*members;
+	int						state;
+}							t_client;
+
+typedef struct				s_pool
+{
+	t_member				*carriers;
+	t_member				*members;
+}							t_pool;
+
+typedef struct				s_network
+{
+	t_server				*server;
+	t_client				*client;
+	t_pool					*pool;
+}							t_network;
+
 /*
 ** queue.c
 */
 void						queue_drop(t_queue *queue);
 void						queue_pop(t_queue *queue);
-void						queue_push(t_queue *queue, int element);
-int							queue_peek(t_queue *queue);
-int							queue_safe_get(t_queue *queue);
-void						queue_safe_add(t_queue *queue, int element);
+void						queue_push(t_queue *queue, void *element);
+void						*queue_peek(t_queue *queue);
+void						*queue_safe_get(t_queue *queue);
+void						queue_safe_add(t_queue *queue, void *element);
 t_queue						*queue_create(int cap);
 
 /*

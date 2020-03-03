@@ -12,7 +12,8 @@ SRC =	$(SRC_D)/api.c														\
 		$(SRC_D)/packaging/package_decompilation.c							\
 		$(SRC_D)/networking/client.c										\
 		$(SRC_D)/networking/server.c										\
-		$(SRC_D)/networking/queue.c
+		$(SRC_D)/networking/queue.c											\
+		$(SRC_D)/networking/pooling.c
 
 
 INC =	$(INC_D)/ito.h														\

@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/01 20:21:31 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/03 00:23:51 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/04 00:42:43 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,29 +14,48 @@
 
 static int		process_request(int descriptor, t_server *server)
 {
-	LOG_DEBUG("Thread %lu : %s\n", pthread_self(), "processing request!");
-	server = NULL;
-	descriptor = 2;
+	char		recv_buffer[NT_BUF_SIZE + 1];
+	int			bytes_received;
+
+	LOG_DEBUG("Thread %d : %s : %i\n", (int)pthread_self(), "processing request", descriptor);
+	bytes_received = recv(descriptor, recv_buffer, NT_BUF_SIZE, 0);
+	if (bytes_received < 0)
+		handle_error("process_request", "problem receiving message",
+				strerror(errno), ERR_WARN);
+	else
+	{
+		recv_buffer[bytes_received] = '\0';
+		// do all processing here
+		server = NULL;
+		if (close(descriptor) < 0)
+			handle_error("process_request", "couldnt close socket:",
+					strerror(errno), ERR_WARN);
+	}
 	return (0);
 }
 
 static void		*worker_requests(void *arg)
 {
 	t_server	*server = (t_server *)arg;
-	int			descriptor;
+	int			*descriptor;
 
 	while (server->state == NT_STATE_READY)
 	{
-		descriptor = queue_safe_get(server->queue);
-		process_request(descriptor, server);
+		descriptor = (int *)queue_safe_get(server->queue);
+		if (descriptor)
+		{
+			process_request(*descriptor, server);
+			free(descriptor);
+		}
 	}
+
 	return (arg);
 }
 
 static void		*worker_incoming(void *arg)
 {
 	t_server	*server = (t_server *)arg;
-	int			descriptor;
+	int			*descriptor;
 
 	if (listen(server->socket, NT_QUEUE_BACKLOG) != 0)
 	{
@@ -46,18 +65,23 @@ static void		*worker_incoming(void *arg)
 	}
 	else
 	{
-		LOG_VERBOSE("Thread : %lu, %s\n", pthread_self(), "server is accepting requests!");
+		LOG_VERBOSE("Thread : %d, %s\n", (int)pthread_self(), "server is accepting requests!");
 		while (server->state == NT_STATE_READY)
 		{
-			descriptor = accept(server->socket, (struct sockaddr *)NULL, NULL);
-			if (descriptor < 0 && errno != ECONNABORTED)
-				handle_error("worker_incoming", "problem with incoming request",
-					strerror(errno), ERR_WARN);
-			else
+			descriptor = malloc(sizeof(int));
+			if (descriptor)
 			{
-				LOG_DEBUG("%s\n", "adding incoming request to queue!");
-				queue_safe_add(server->queue, descriptor);
+				*descriptor = accept(server->socket, (struct sockaddr *)NULL, NULL);
+				if (*descriptor < 0 && errno != ECONNABORTED)
+					handle_error("worker_incoming", "problem with incoming request",
+							strerror(errno), ERR_WARN);
+				else
+				{
+					queue_safe_add(server->queue, (void *)descriptor);
+				}
 			}
+			else
+				handle_error("worker_requests", strerror(errno), NULL, ERR_CRIT);
 		}
 	}
 	return(NULL);
@@ -67,8 +91,7 @@ static int		spin_up_threads(pthread_t *thread_tab, t_server *server)
 {
 	int ctr = 1;
 
-	LOG_DEBUG("%s\n", "spinning up threads!");
-
+	LOG_DEBUG("%s : %s\n", "server", "spinning up threads!");
 	if (pthread_create(&thread_tab[0], NULL, worker_incoming,
 				(void *)server) != 0)
 		return(0);
@@ -96,6 +119,13 @@ void			shutdown_server(t_server *server)
 	if (close(server->socket) < 0)
 		handle_error("shutdown_server", "couldnt close socket!",
 				strerror(errno), ERR_CRIT);
+	while(server->queue->size > 0)
+	{
+		if (close(*(int *)queue_peek(server->queue)) < 0)
+			handle_error("shutdown_server", "couldnt close socket!",
+					strerror(errno), ERR_CRIT);
+		queue_pop(server->queue);
+	}
 	queue_drop(server->queue);
 	free(server->thread_tab);
 	free(server);
@@ -112,6 +142,7 @@ t_server		*initialise_server(void)
 		server->queue = queue_create(NT_QUEUE_CAP);
 		if (!server->queue)
 		{
+			handle_error("initialise_server", strerror(errno), NULL, ERR_CRIT);
 			free(server);
 			return(NULL);
 		}
@@ -124,6 +155,18 @@ t_server		*initialise_server(void)
 			{
 				handle_error("initialise_server", "couldnt open socket!",
 						strerror(errno), ERR_CRIT);
+				free(server->thread_tab);
+				queue_drop(server->queue);
+				free(server);
+				return(NULL);
+			}
+
+			if (setsockopt(server->socket, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0)
+			{
+				handle_error("initialise_server", "couldnt set socket options!",
+						strerror(errno), ERR_CRIT);
+				queue_drop(server->queue);
+				close(server->socket);
 				free(server->thread_tab);
 				free(server);
 				return(NULL);
@@ -139,6 +182,8 @@ t_server		*initialise_server(void)
 			{
 				handle_error("initialise_server", "couldn't bind to socket!",
 						strerror(errno), ERR_CRIT);
+				close(server->socket);
+				queue_drop(server->queue);
 				free(server->thread_tab);
 				free(server);
 				return(NULL);
@@ -146,15 +191,25 @@ t_server		*initialise_server(void)
 
 			server->state = NT_STATE_READY;
 			if (!spin_up_threads(server->thread_tab, server))
+			{
 				handle_error("initialise_server", "couldn't spin up threads!",
 						strerror(errno), ERR_CRIT);
+				close(server->socket);
+				queue_drop(server->queue);
+				free(server->thread_tab);
+				free(server);
+				return (NULL);
+			}
 		}
 		else
 		{
 			handle_error("initialise_server", strerror(errno), NULL, ERR_CRIT);
+			queue_drop(server->queue);
 			free(server);
 			return(NULL);
 		}
 	}
+	else
+		handle_error("initialise_server", strerror(errno), NULL, ERR_CRIT);
 	return (server);
 }
