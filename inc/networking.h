@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/01 21:43:08 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/04 19:51:21 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/04 22:29:12 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,18 +49,19 @@
 # define NT_STATE_READY		1
 # define NT_STATE_STOP		2
 
-typedef struct				s_member
-{
-	struct in_addr			sin_addr;
-	pthread_mutex_t			lock;
-	t_package				package;
-}							t_member;
-
 typedef struct				s_package_enroute
 {
 	struct addrinfo			*addrinfo;
 	t_package				*package;
 }							t_package_enroute;
+
+typedef struct				s_member
+{
+	struct addrinfo			*addrinfo;
+	pthread_mutex_t			lock;
+	t_package				package_in;
+	t_package_enroute		package_out;
+}							t_member;
 
 typedef struct				s_queue
 {
@@ -79,7 +80,6 @@ typedef struct				s_server
 	int						socket;
 	pthread_t				*thread_tab;
 	t_queue					*queue;
-	t_member				*members;
 	int						state;
 }							t_server;
 
@@ -87,7 +87,6 @@ typedef struct				s_client
 {
 	pthread_t				*thread_tab;
 	t_queue					*queue;
-	t_member				*members;
 	int						state;
 }							t_client;
 

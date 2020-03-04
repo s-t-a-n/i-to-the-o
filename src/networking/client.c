@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/01 20:21:25 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/04 19:47:56 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/04 21:43:09 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ static int		process_request(t_package_enroute *package_en, t_client *client)
 			strerror(errno), ERR_WARN);
 		return(-1);
 	}
-	if (close(descriptor) != 0)
+	if (close(descriptor) < 0)
 	{
 		handle_error("process_request", "couldn't close socket!",
 			strerror(errno), ERR_WARN);

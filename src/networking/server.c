@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/01 20:21:31 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/04 19:31:51 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/04 21:48:04 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ static int		process_request(int descriptor, t_server *server)
 	else
 	{
 		recv_buffer[bytes_received] = '\0';
+
 		// do all processing here
 		server = NULL;
 		if (close(descriptor) < 0)
@@ -80,7 +81,13 @@ static void		*worker_incoming(void *arg)
 				}
 				else
 				{
-					queue_safe_add(server->queue, (void *)descriptor);
+					if (setsockopt(*descriptor, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0)
+					{
+						handle_error("worker_incoming", "couldnt set socket opts:", strerror(errno), ERR_WARN);
+						close(*descriptor);
+					}
+					else
+						queue_safe_add(server->queue, (void *)descriptor);
 				}
 			}
 			else
