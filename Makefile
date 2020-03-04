@@ -7,6 +7,7 @@ INC_D = inc
 
 # C source and header files
 SRC =	$(SRC_D)/api.c														\
+		$(SRC_D)/common.c													\
 		$(SRC_D)/error_and_logging.c										\
 		$(SRC_D)/packaging/package_compilation.c							\
 		$(SRC_D)/packaging/package_decompilation.c							\
@@ -160,6 +161,12 @@ client_test: $(NAME)
 
 fclean: clean
 	@$(RM) $(NAME)
+	@$(RM) -rf main_client_t.dSYM
+	@$(RM) -f main_client_t
+	@$(RM) -rf main_server_t.dSYM
+	@$(RM) -f main_server_t
+	@$(RM) -rf main_api_t.dSYM
+	@$(RM) -f main_api_t
 
 re: fclean all
 

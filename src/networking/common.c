@@ -6,14 +6,15 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/04 17:31:44 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/04 21:38:32 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/04 23:37:50 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "networking.h"
 
-struct addrinfo		*conv_to_addrinfo(char *hostname, char *service)
+struct addrinfo		*conv_to_addrinfo(char *hostname, int port)
 {
+	char			service[8];
 	struct addrinfo	*info;
 	struct addrinfo hints;
 	memset(&hints, 0, sizeof(struct addrinfo));
@@ -22,6 +23,8 @@ struct addrinfo		*conv_to_addrinfo(char *hostname, char *service)
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_DEFAULT;
 	
+	snprintf(service, 8, "%d", port);
+
 	if (getaddrinfo(hostname, service, &hints, &info) != 0)
 	{
 		handle_error("conv_to_addrinfo", "couldn't get address info:",

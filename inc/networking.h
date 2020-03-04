@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/01 21:43:08 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/04 22:29:12 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/04 23:45:01 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,6 @@
 */
 
 # define NT_PORT			4200
-# define NT_PORT_C			"4200"
 
 # define NT_QUEUE_CAP		1024 // maximum number of pending requests
 # define NT_QUEUE_BACKLOG	10
@@ -49,18 +48,25 @@
 # define NT_STATE_READY		1
 # define NT_STATE_STOP		2
 
-typedef struct				s_package_enroute
+# define NT_WRITE_DELAY		50	// time in microseconds that the thread holds before attempting to write again
+# define NT_WRITE_MAXRETRY	5
+
+typedef struct				s_package_nt
 {
 	struct addrinfo			*addrinfo;
-	t_package				*package;
-}							t_package_enroute;
+	int						socketfd;
+	unsigned char			*mem;
+	int						index;
+	uint32_t				flags;
+}							t_package_nt;
 
 typedef struct				s_member
 {
 	struct addrinfo			*addrinfo;
+	int						socketfd;
 	pthread_mutex_t			lock;
-	t_package				package_in;
-	t_package_enroute		package_out;
+	t_package_nt			package_in;
+	t_package_nt			package_out;
 }							t_member;
 
 typedef struct				s_queue
@@ -106,7 +112,7 @@ typedef struct				s_network
 /*
 ** common.c
 */
-struct addrinfo				*conv_to_addrinfo(char *hostname, char *service);
+struct addrinfo				*conv_to_addrinfo(char *hostname, int port);
 int							open_connection_sync(struct addrinfo *info);
 
 /*

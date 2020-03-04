@@ -6,11 +6,14 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/01 20:21:31 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/04 21:48:04 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/04 23:43:10 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "networking.h"
+
+// NEEDED:
+// adjust everything for SO_KEEPALIVE and adjust queue accordingly
 
 static int		process_request(int descriptor, t_server *server)
 {
@@ -53,6 +56,8 @@ static void		*worker_requests(void *arg)
 	return (arg);
 }
 
+// cleanup this function
+// store socketfd -> send it to pool
 static void		*worker_incoming(void *arg)
 {
 	t_server	*server = (t_server *)arg;

@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/04 19:18:59 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/04 20:12:06 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/04 23:45:39 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,9 @@ void					bombard(t_client *client)
 {
 	t_data				s_send;
 	t_package			package;
-	t_package_enroute	*package_en;
+	t_package_nt		*package_nt;
 
-	package_en = malloc(sizeof(t_package_enroute));
+	package_nt = malloc(sizeof(t_package_nt));
 
 	s_send.x = 5.5;
 	s_send.y = 9.4;
@@ -45,10 +45,13 @@ void					bombard(t_client *client)
 	ito_compile_package(&package, formatstr, s_send.x, s_send.y, s_send.name, s_send.id, s_send.flags, s_send.fatty, s_send.sfatty);
 	//dump_package(&package);
 
-	package_en->package = &package;
-	package_en->addrinfo = conv_to_addrinfo(strdup("127.0.0.1"), NT_PORT_C);
-	if (package_en->addrinfo)
-		queue_safe_add(client->queue, (void *)package_en);
+	package_nt->mem = package.mem;
+	package_nt->index = package.index;
+	package_nt->addrinfo = conv_to_addrinfo(strdup("127.0.0.1"), NT_PORT);
+
+	// open connection here
+	if (package_nt->addrinfo)
+		queue_safe_add(client->queue, (void *)package_nt);
 }
 
 int						main(void)
