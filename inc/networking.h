@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/01 21:43:08 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/04 00:38:29 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/04 19:51:21 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,10 @@
 # define NETWORKING_H
 
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -30,11 +32,12 @@
 */
 
 # define NT_PORT			4200
+# define NT_PORT_C			"4200"
 
-# define NT_QUEUE_CAP		30 // maximum number of pending requests
+# define NT_QUEUE_CAP		1024 // maximum number of pending requests
 # define NT_QUEUE_BACKLOG	10
 
-# define NT_WORKERS_DEF		3  // an extra thread is spawned for handling incoming
+# define NT_WORKERS_DEF		5  // an extra thread is spawned for handling incoming
 # define NT_WORKERS_MAX		20 // maximum number of threads to spin up
 
 # define NT_BUF_SIZE		1024
@@ -55,7 +58,7 @@ typedef struct				s_member
 
 typedef struct				s_package_enroute
 {
-	struct in_addr			sin_addr;
+	struct addrinfo			*addrinfo;
 	t_package				*package;
 }							t_package_enroute;
 
@@ -100,6 +103,12 @@ typedef struct				s_network
 	t_client				*client;
 	t_pool					*pool;
 }							t_network;
+
+/*
+** common.c
+*/
+struct addrinfo				*conv_to_addrinfo(char *hostname, char *service);
+int							open_connection_sync(struct addrinfo *info);
 
 /*
 ** queue.c

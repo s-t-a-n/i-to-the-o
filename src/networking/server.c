@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/01 20:21:31 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/04 00:42:43 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/04 19:31:51 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ static int		process_request(int descriptor, t_server *server)
 	char		recv_buffer[NT_BUF_SIZE + 1];
 	int			bytes_received;
 
-	LOG_DEBUG("Thread %d : %s : %i\n", (int)pthread_self(), "processing request", descriptor);
+	LOG_DEBUG("Server : Thread %d : %s : %i\n", (int)pthread_self(), "processing request", descriptor);
 	bytes_received = recv(descriptor, recv_buffer, NT_BUF_SIZE, 0);
 	if (bytes_received < 0)
 		handle_error("process_request", "problem receiving message",
@@ -119,6 +119,7 @@ static int		spin_up_threads(pthread_t *thread_tab, t_server *server)
 void			shutdown_server(t_server *server)
 {
 	LOG_DEBUG("%s\n", "shutting down server!");
+	server->state = NT_STATE_STOP;
 	pthread_mutex_lock(&server->queue->lock);
 	if (close(server->socket) < 0)
 		handle_error("shutdown_server", "couldnt close socket!",

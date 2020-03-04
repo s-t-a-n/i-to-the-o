@@ -10,6 +10,7 @@ SRC =	$(SRC_D)/api.c														\
 		$(SRC_D)/error_and_logging.c										\
 		$(SRC_D)/packaging/package_compilation.c							\
 		$(SRC_D)/packaging/package_decompilation.c							\
+		$(SRC_D)/networking/common.c										\
 		$(SRC_D)/networking/client.c										\
 		$(SRC_D)/networking/server.c										\
 		$(SRC_D)/networking/queue.c											\
@@ -103,7 +104,7 @@ api_test: $(NAME)
         $(ECHO) "$(OK_STRING)\n";                                           \
     fi
 	@$(ECHO) "Running $(TEST)...\n"
-	@./$(TEST) && $(RM) -f $(TEST) && $(RM) -rf $(TEST).dSYM 2>$(CC_LOG) || touch $(CC_ERROR)
+	@time ./$(TEST) && $(RM) -f $(TEST) && $(RM) -rf $(TEST).dSYM 2>$(CC_LOG) || touch $(CC_ERROR)
 	@if test -e $(CC_ERROR); then                                           \
 		$(ECHO) "Completed $(TEST): $(ERROR_STRING)\n" && $(CAT) $(CC_LOG);		\
     elif test -s $(CC_LOG); then											\
@@ -125,7 +126,7 @@ server_test: $(NAME)
         $(ECHO) "$(OK_STRING)\n";                                           \
     fi
 	@$(ECHO) "Running $(TEST)...\n"
-	@./$(TEST) && $(RM) -f $(TEST) && $(RM) -rf $(TEST).dSYM 2>$(CC_LOG) || touch $(CC_ERROR)
+	@time ./$(TEST) && $(RM) -f $(TEST) && $(RM) -rf $(TEST).dSYM 2>$(CC_LOG) || touch $(CC_ERROR)
 	@if test -e $(CC_ERROR); then                                           \
 		$(ECHO) "Completed $(TEST): $(ERROR_STRING)\n" && $(CAT) $(CC_LOG);		\
     elif test -s $(CC_LOG); then											\
@@ -147,7 +148,7 @@ client_test: $(NAME)
         $(ECHO) "$(OK_STRING)\n";                                           \
     fi
 	@$(ECHO) "Running $(TEST)...\n"
-	@./$(TEST) && $(RM) -f $(TEST) && $(RM) -rf $(TEST).dSYM 2>$(CC_LOG) || touch $(CC_ERROR)
+	@time ./$(TEST) && $(RM) -f $(TEST) && $(RM) -rf $(TEST).dSYM 2>$(CC_LOG) || touch $(CC_ERROR)
 	@if test -e $(CC_ERROR); then                                           \
 		$(ECHO) "Completed $(TEST): $(ERROR_STRING)\n" && $(CAT) $(CC_LOG);		\
     elif test -s $(CC_LOG); then											\
