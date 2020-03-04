@@ -73,8 +73,11 @@ static void		*worker_incoming(void *arg)
 			{
 				*descriptor = accept(server->socket, (struct sockaddr *)NULL, NULL);
 				if (*descriptor < 0 && errno != ECONNABORTED)
+				{
 					handle_error("worker_incoming", "problem with incoming request",
 							strerror(errno), ERR_WARN);
+					free(descriptor);
+				}
 				else
 				{
 					queue_safe_add(server->queue, (void *)descriptor);
@@ -116,6 +119,7 @@ static int		spin_up_threads(pthread_t *thread_tab, t_server *server)
 void			shutdown_server(t_server *server)
 {
 	LOG_DEBUG("%s\n", "shutting down server!");
+	pthread_mutex_lock(&server->queue->lock);
 	if (close(server->socket) < 0)
 		handle_error("shutdown_server", "couldnt close socket!",
 				strerror(errno), ERR_CRIT);

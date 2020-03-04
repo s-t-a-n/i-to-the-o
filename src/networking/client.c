@@ -29,8 +29,6 @@ static void		*worker_requests(void *arg)
 		package = (t_package_enroute *)queue_safe_get(client->queue);
 		process_request(package, client);
 	}
-
-	client = NULL;
 	return (NULL);
 }
 
@@ -60,10 +58,14 @@ static int		spin_up_threads(pthread_t *thread_tab, t_client *client)
 
 void			shutdown_client(t_client *client)
 {
+	t_package_enroute	*package_en;
+
 	LOG_DEBUG("%s\n", "shutting down client!");
 	while(client->queue->size > 0)
 	{
-		free(queue_peek(client->queue));
+		package_en = queue_peek(client->queue);
+		free(package_en->package->mem);
+		free(package_en);
 		queue_pop(client->queue);
 	}
 	queue_drop(client->queue);

@@ -117,4 +117,11 @@ t_queue						*queue_create(int cap);
 */
 t_server					*initialise_server(void);
 void						shutdown_server(t_server *server);
+
+/*
+** client.c
+*/
+
+t_client					*initialise_client(void);
+void						shutdown_client(t_client *client);
 #endif

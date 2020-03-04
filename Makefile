@@ -135,6 +135,28 @@ server_test: $(NAME)
     fi
 	@$(RM) -f $(CC_LOG) $(CC_ERROR)
 
+client_test: TEST='main_client_t'
+client_test: $(NAME)
+	@$(ECHO) "Compiling $(TEST).c..." 2>$(CC_LOG) || touch $(CC_ERROR)
+	@$(CC) $(CC_FLAGS_TESTS) -I$(INC_D) -o $(TEST) tests/$(TEST).c $(NAME)
+	@if test -e $(CC_ERROR); then                                           \
+        $(ECHO) "$(ERROR_STRING)\n" && $(CAT) $(CC_LOG);					\
+    elif test -s $(CC_LOG); then                                            \
+        $(ECHO) "$(WARN_STRING)\n" && $(CAT) $(CC_LOG);                     \
+    else                                                                    \
+        $(ECHO) "$(OK_STRING)\n";                                           \
+    fi
+	@$(ECHO) "Running $(TEST)...\n"
+	@./$(TEST) && $(RM) -f $(TEST) && $(RM) -rf $(TEST).dSYM 2>$(CC_LOG) || touch $(CC_ERROR)
+	@if test -e $(CC_ERROR); then                                           \
+		$(ECHO) "Completed $(TEST): $(ERROR_STRING)\n" && $(CAT) $(CC_LOG);		\
+    elif test -s $(CC_LOG); then											\
+		$(ECHO) "Completed $(TEST): $(WARN_STRING)\n" && $(CAT) $(CC_LOG);		\
+    else                                                                    \
+		$(ECHO) "Completed $(TEST): $(OK_STRING)\n";								\
+    fi
+	@$(RM) -f $(CC_LOG) $(CC_ERROR)
+
 fclean: clean
 	@$(RM) $(NAME)
 
