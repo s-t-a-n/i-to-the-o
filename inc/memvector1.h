@@ -1,29 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   packaging.h                                        :+:    :+:            */
+/*   memvector1.h                                       :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2020/03/01 21:44:17 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/01 21:47:28 by sverschu      ########   odam.nl         */
+/*   Created: 2020/03/06 19:32:50 by sverschu      #+#    #+#                 */
+/*   Updated: 2020/03/06 19:33:18 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PACKAGING_H
-# define PACKAGING_H
+#include <stdlib.h>
 
-#include "ito_internal.h"
-
-
-/*
-** package_compilation.c
-*/
-int		add_data_to_package(va_list *args, const char * restrict formatstr, t_package *package);
+typedef struct				s_mvector1
+{
+	unsigned char			*mem;
+	size_t					index;
+	size_t					cap;
+}							t_mvector1;
 
 /*
-** package_decompilation.c
+** mvector1.c
 */
-int		get_data_from_package(va_list *args, const char * restrict formatstr, t_package *package);
-
-#endif
+void						mvector1_destroy(t_mvector1 *vec);
+t_mvector1					*mvector1_init(size_t cap);
+t_mvector1					*mvector1_grow(t_mvector1 *old_vec);
+int							mvector1_pushback(t_mvector1 **vec,
+								unsigned char *element, size_t len);

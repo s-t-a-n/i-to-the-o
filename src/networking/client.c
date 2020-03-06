@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/01 20:21:25 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/04 23:40:33 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/06 20:45:42 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ static int		process_request(t_package_nt *package)
 	write_miss_counter = 0;
 	while(bytes_written < package->index)
 	{
-		bytes_written_actual = write(package->socketfd, package->mem, package->index);
+		bytes_written_actual = write(package->socketfd, package->mem + bytes_written, package->index);
 		if (bytes_written_actual < 0)
 		{
 			handle_error("process_request", "couldn't send request!",
@@ -39,7 +39,7 @@ static int		process_request(t_package_nt *package)
 			write_miss_counter++;
 			if (write_miss_counter >= NT_WRITE_MAXRETRY)
 			{
-				handle_error("process_request", "max retry for write hit!",
+				handle_error("process_request", "Max times write attempt hit!",
 						NULL, ERR_WARN);
 				return (-1);
 			}
@@ -47,7 +47,9 @@ static int		process_request(t_package_nt *package)
 			sleep_micro(NT_WRITE_DELAY);
 		}
 		else
+		{
 			bytes_written += bytes_written_actual;
+		}
 	}
 	return (1);
 }
@@ -64,29 +66,6 @@ static void		*worker_requests(void *arg)
 		process_request(package);
 	}
 	return (NULL);
-}
-
-static int		spin_up_threads(pthread_t *thread_tab, t_client *client)
-{
-	int ctr = 0;
-
-	LOG_DEBUG("%s : %s\n", "client", "spinning up threads!");
-	while (ctr < NT_WORKERS_DEF)
-	{
-		if (pthread_create(&thread_tab[ctr], NULL, worker_requests,
-					(void *)client) != 0)
-		{
-			int undo_ctr = 0;
-			while (undo_ctr < ctr)
-			{
-				pthread_kill(thread_tab[undo_ctr], SIGTERM);
-				undo_ctr++;
-			}
-			return (0);
-		}
-		ctr++;
-	}
-	return (1);
 }
 
 void			shutdown_client(t_client *client)
@@ -126,6 +105,8 @@ t_client		*initialise_client(void)
 		if (client->thread_tab)
 		{
 			client->state = NT_STATE_READY;
+			// redo SPIN UP with threads.h
+			/*
 			if (!spin_up_threads(client->thread_tab, client))
 			{
 				handle_error("initialise_client", "couldn't spin up threads!",
@@ -135,6 +116,7 @@ t_client		*initialise_client(void)
 				free(client);
 				return(NULL);
 			}
+			*/
 		}
 		else
 		{

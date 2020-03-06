@@ -1,29 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   packaging.h                                        :+:    :+:            */
+/*   framing.c                                          :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2020/03/01 21:44:17 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/01 21:47:28 by sverschu      ########   odam.nl         */
+/*   Created: 2020/03/05 19:23:07 by sverschu      #+#    #+#                 */
+/*   Updated: 2020/03/05 19:42:09 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PACKAGING_H
-# define PACKAGING_H
+#include "networking.h"
 
-#include "ito_internal.h"
+void	insert_frame(t_package_nt *package, t_frame *frame)
+{
 
+}
 
-/*
-** package_compilation.c
-*/
-int		add_data_to_package(va_list *args, const char * restrict formatstr, t_package *package);
-
-/*
-** package_decompilation.c
-*/
-int		get_data_from_package(va_list *args, const char * restrict formatstr, t_package *package);
-
-#endif
+void	

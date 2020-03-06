@@ -6,36 +6,107 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/01 20:21:31 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/04 23:43:10 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/06 20:45:11 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "networking.h"
+
+static int		read_frame_header(int descriptor, t_server *server)
+{
+	char		recv_buffer[NT_BUF_SIZE + 1];
+	int			bytes_received;
+	ssize_t		bytes_read;
+	ssize_t		bytes_read_actual;
+	int			read_miss_counter;
+
+	// READ HEADER -> put in seperate function
+	bytes_read = 0;
+	read_miss_counter = 0;
+	while(bytes_read < NT_FRAME_HEADER_SIZE)
+	{
+		bytes_read_actual = recv(descriptor, recv_buffer, NT_FRAME_HEADER_SIZE - bytes_read, 0);
+		if (bytes_read_actual < 0)
+		{
+			handle_error("Sever: process_request", "couldn't read request!",
+                	                strerror(errno), ERR_WARN);
+			break;
+		}
+		else if (bytes_read_actual == 0)
+		{
+			read_miss_counter++;
+			if (read_mis_counter >= NT_READ_MAXRETRY)
+			{
+				handle_error("Server: process_request",
+					"Frame header couldn't be read!", NULL, ERR_WARN);
+                                return (-1);
+			}
+			LOG_DEBUG("Server : Thread %d : %s\n", (int)pthread_self(),
+				"bytes read was zero, sleeping.");
+                        sleep_micro(NT_READ_DELAY);
+		}
+		else
+			bytes_read += bytes_read_actual;
+	}
+}
 
 // NEEDED:
 // adjust everything for SO_KEEPALIVE and adjust queue accordingly
 
 static int		process_request(int descriptor, t_server *server)
 {
-	char		recv_buffer[NT_BUF_SIZE + 1];
-	int			bytes_received;
 
-	LOG_DEBUG("Server : Thread %d : %s : %i\n", (int)pthread_self(), "processing request", descriptor);
+	LOG_DEBUG("Server : Thread %d : %s : %i\n", (int)pthread_self(),
+		"processing request", descriptor);
+	
+
+	// read frameheader first
+	// if request JOIN -> handle pooling
+	// if request PING -> send ping back
+	// if request PACKAGE -> enter thread and keep listening
+	// 	add to ping queue
+
+	// seperate thread for handling connection KEEPALIVE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	// OLD
 	bytes_received = recv(descriptor, recv_buffer, NT_BUF_SIZE, 0);
+
 	if (bytes_received < 0)
+	{
 		handle_error("process_request", "problem receiving message",
 				strerror(errno), ERR_WARN);
-	else
-	{
-		recv_buffer[bytes_received] = '\0';
-
-		// do all processing here
-		server = NULL;
-		if (close(descriptor) < 0)
-			handle_error("process_request", "couldnt close socket:",
-					strerror(errno), ERR_WARN);
+		return (-1);
 	}
-	return (0);
+
+	//recv_buffer[bytes_received] = '\0';
+
+	// do all processing here
+
+	/*
+	if (close(descriptor) < 0)
+	{
+		handle_error("process_request", "couldnt close socket:",
+				strerror(errno), ERR_WARN);
+		return(-1);
+	}
+	*/
+
+	return (1);
 }
 
 static void		*worker_requests(void *arg)
@@ -100,32 +171,6 @@ static void		*worker_incoming(void *arg)
 		}
 	}
 	return(NULL);
-}
-
-static int		spin_up_threads(pthread_t *thread_tab, t_server *server)
-{
-	int ctr = 1;
-
-	LOG_DEBUG("%s : %s\n", "server", "spinning up threads!");
-	if (pthread_create(&thread_tab[0], NULL, worker_incoming,
-				(void *)server) != 0)
-		return(0);
-	while (ctr < NT_WORKERS_DEF + 1)
-	{
-		if (pthread_create(&thread_tab[ctr], NULL, worker_requests,
-					(void *)server) != 0)
-		{
-			int undo_ctr = 0;
-			while (undo_ctr < ctr)
-			{
-				pthread_kill(thread_tab[undo_ctr], SIGTERM);
-				undo_ctr++;
-			}
-			return (0);
-		}
-		ctr++;
-	}
-	return (1);
 }
 
 void			shutdown_server(t_server *server)
@@ -207,6 +252,8 @@ t_server		*initialise_server(void)
 			}
 
 			server->state = NT_STATE_READY;
+			// REDO SPIN UP with threads.h
+			/*
 			if (!spin_up_threads(server->thread_tab, server))
 			{
 				handle_error("initialise_server", "couldn't spin up threads!",
@@ -217,6 +264,7 @@ t_server		*initialise_server(void)
 				free(server);
 				return (NULL);
 			}
+			*/
 		}
 		else
 		{

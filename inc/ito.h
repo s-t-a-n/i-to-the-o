@@ -19,31 +19,31 @@
 ** Include this header to use ITO.
 */
 
-typedef struct		s_ito_specs
+typedef struct				s_ito_specs
 {
-    char			*ip_address;
-    int				pool;
+    char				*ip_address;
+    int					pool;
 }					t_ito_specs;
 
-typedef struct		s_ito
+typedef struct				s_ito
 {
-	t_ito_specs		ito_specs;
+	t_ito_specs			ito_specs;
 }					t_ito;
 
 
-typedef struct		s_package
+typedef struct				s_package
 {
-	unsigned char	*mem;
-	size_t			mem_cap;
-	size_t			index;
+	unsigned char			*mem;
+	size_t				mem_cap;
+	size_t				index;
 }					t_package;
 
 int					ito_decompile_package(t_package *package, const char * restrict formatstr, ...);
 int					ito_compile_package(t_package *package, const char * restrict formatstr, ...);
 int					ito_send_package(t_ito *ito, t_package *package);
 
-t_ito				*ito_quick_init(char *ip);
-t_ito				*ito_full_init(t_ito_specs *ito_specs);
+t_ito					*ito_quick_init(char *ip);
+t_ito					*ito_full_init(t_ito_specs *ito_specs);
 int					ito_shutdown(t_ito *ito);
 int					ito_hook(t_ito *ito, int (*f_ptr)(), void *param);
 

@@ -9,6 +9,8 @@ INC_D = inc
 SRC =	$(SRC_D)/api.c														\
 		$(SRC_D)/common.c													\
 		$(SRC_D)/error_and_logging.c										\
+		$(SRC_D)/threading.c												\
+		$(SRC_D)/memvector1.c												\
 		$(SRC_D)/packaging/package_compilation.c							\
 		$(SRC_D)/packaging/package_decompilation.c							\
 		$(SRC_D)/networking/common.c										\
