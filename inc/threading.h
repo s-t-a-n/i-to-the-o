@@ -14,6 +14,7 @@
 # define THREADING_H
 
 # include <pthread.h>
+# include <signal.h>
 # include "ito_internal.h"
 
 void				spin_down_threads(int count, pthread_t *threads);

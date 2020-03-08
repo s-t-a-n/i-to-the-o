@@ -59,6 +59,8 @@ pthread_t	*spin_up_threads(int count, pthread_attr_t *attr,
 				spin_down_threads(i, thread_tab);
 				return(NULL);
 			}
+			else
+				thread_tab[i] = thread;
 		}
 	}
 	handle_error("spin_up_threads", strerror(errno), NULL, ERR_CRIT);
