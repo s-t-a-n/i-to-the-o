@@ -6,11 +6,13 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/25 17:36:06 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/03 22:02:00 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/08 22:19:26 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "packaging.h"
+#include "ito_internal.h"
+#include "networking/framing.h"
+#include "packaging/packaging.h"
 
 int	ito_decompile_package(t_package *package, const char * restrict formatstr, ...)
 {
@@ -44,7 +46,7 @@ int		ito_compile_package(t_package *package, const char * restrict formatstr, ..
 	LOG_DEBUG("%s : %s\n","ito_compile_package", "compiling package!");
 	va_start(args, formatstr);
 	package->mem_cap = MEMCAP_DEF;
-	package->index = 0;
+	package->index = FRAME_HEADER_LEN;
 	if (!(package->mem = (unsigned char *)malloc(MEMCAP_DEF + 1)))
 		return (ITO_ERROR);
 	while(*formatstr)

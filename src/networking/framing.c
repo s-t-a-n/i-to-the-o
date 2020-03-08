@@ -6,15 +6,53 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/05 19:23:07 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/05 19:42:09 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/08 22:40:50 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "networking.h"
+#include "networking/framing.h"
 
-void	insert_frame(t_package_nt *package, t_frame *frame)
+/*
+** frame len should be validated BEFORE calling frame_read_type
+*/
+
+t_request_type	frame_read_reqtype(unsigned char *frameheader)
 {
+	t_char_as_uint32	chint;
+	
+	frameheader += FRAME_HEADER_SIG_LEN;
 
+	frameheader += FRAME_HEADER_ROUTINGDATA_LEN;
+
+	memcpy(chint.c, frameheader, 4);
+	return(chint.u);
+};
+
+int				frame_validate_signature(unsigned char *frameheader)
+{
+	t_char_as_uint32	chint;
+	
+	memcpy(chint.c, frameheader, FRAME_HEADER_SIG_LEN);
+	if (chint.u != FRAME_HEADER_SIG)
+		return (0);
+	else
+		return (1);
 }
 
-void	
+int				frame_insert(t_container *container, t_request_type reqtype)
+{
+	int					ctr = 0;
+	t_char_as_uint32	chint;
+	
+	chint.u = (uint32_t)FRAME_HEADER_SIG;
+	memcpy(&container->vector->mem[ctr], chint.c, 4);
+	ctr += FRAME_HEADER_SIG_LEN;
+
+	memset(&container->vector->mem[ctr], 0, FRAME_HEADER_ROUTINGDATA_LEN);
+	ctr += FRAME_HEADER_ROUTINGDATA_LEN;
+
+	chint.u = (uint32_t)reqtype;
+	memcpy(&container->vector->mem[ctr], chint.c, 4);
+
+	return (1);
+}

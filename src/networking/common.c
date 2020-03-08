@@ -6,11 +6,11 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/04 17:31:44 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/04 23:37:50 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/08 22:03:54 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "networking.h"
+#include "networking/networking.h"
 
 struct addrinfo		*conv_to_addrinfo(char *hostname, int port)
 {
@@ -52,8 +52,10 @@ int					open_connection_sync(struct addrinfo *info)
 		descriptor = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
 		if (descriptor != -1)
 		{
-			if (setsockopt(descriptor, SOL_SOCKET, SO_REUSEADDR, &(int){1},
-						sizeof(int)) < 0)
+			int error = 0;
+			error += setsockopt(descriptor, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
+			error += setsockopt(descriptor, SOL_SOCKET, SO_KEEPALIVE, &(int){1}, sizeof(int));
+			if (error > 0)
 			{
 				handle_error("open_connection_sync", "couldn't set sock opts:",
 						strerror(errno), ERR_WARN);

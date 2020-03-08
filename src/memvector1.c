@@ -6,11 +6,11 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/06 19:20:23 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/06 19:36:39 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/08 22:05:28 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "memvector1.h"
+#include "common/memvector1.h"
 
 void				mvector1_destroy(t_mvector1 *vec)
 {
@@ -44,7 +44,7 @@ t_mvector1		*mvector1_grow(t_mvector1 *old_vec)
 	new_vec = mvector1_init(old_vec->cap * 2);
 	if (new_vec)
 	{
-		while (new_vec->index < old_vec->cap)
+		while ((size_t)new_vec->index < old_vec->cap)
 		{
 			(new_vec->mem)[new_vec->index] = old_vec->mem[new_vec->index];
 			(new_vec->index)++;

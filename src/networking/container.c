@@ -6,15 +6,16 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/06 18:37:05 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/06 20:44:23 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/08 22:04:06 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "networking.h"
+#include "networking/networking.h"
+#include "common/memvector1.h"
 
 void			container_destroy(t_container *container)
 {
-	free(container->mem);
+	mvector1_destroy(container->vector);
 	freeaddrinfo(container->addrinfo);
 	free(container);
 }
@@ -27,7 +28,7 @@ t_container		*container_create(size_t cap, struct addrinfo *addrinfo,
 	container = malloc(sizeof(t_container));
 	if (container)
 	{
-		container->vector = nvectir1_init(cap);
+		container->vector = mvector1_init(cap);
 		if (container->vector)
 		{
 			container->addrinfo = addrinfo;
@@ -42,13 +43,7 @@ t_container		*container_create(size_t cap, struct addrinfo *addrinfo,
 	return (container);
 }
 
-void			container_insert_frames(t_container *container, uint32_t flags)
-{
-	container = NULL;
-	flags = 0;
-}
-
 char			*container_get_data_start(t_container *container)
 {
-	return((char *)container->vector->mem + NT_FRAME_HEADER_LEN);
+	return((char *)container->vector->mem + FRAME_HEADER_LEN);
 }

@@ -1,29 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   memvector1.h                                       :+:    :+:            */
+/*   threads.h                                          :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2020/03/06 19:32:50 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/06 19:33:18 by sverschu      ########   odam.nl         */
+/*   Created: 2020/03/06 19:43:54 by sverschu      #+#    #+#                 */
+/*   Updated: 2020/03/08 17:20:52 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdlib.h>
+#ifndef THREADING_H
+# define THREADING_H
 
-typedef struct				s_mvector1
-{
-	unsigned char			*mem;
-	size_t					index;
-	size_t					cap;
-}							t_mvector1;
+# include <pthread.h>
+# include <signal.h>
+# include "ito_internal.h"
 
-/*
-** mvector1.c
-*/
-void						mvector1_destroy(t_mvector1 *vec);
-t_mvector1					*mvector1_init(size_t cap);
-t_mvector1					*mvector1_grow(t_mvector1 *old_vec);
-int							mvector1_pushback(t_mvector1 **vec,
-								unsigned char *element, size_t len);
+void				spin_down_threads(int amount, pthread_t *threads);
+pthread_t			spin_up_thread(pthread_attr_t *attr,
+						void *(*main)(void *), void *arg);
+pthread_t			*spin_up_threads(int amount, int maxamount,
+						pthread_attr_t *attr, void *(*main)(void *),
+						void *arg);
+
+#endif

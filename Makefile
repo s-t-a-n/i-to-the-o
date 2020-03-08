@@ -7,7 +7,7 @@ INC_D = inc
 
 # C source and header files
 SRC =	$(SRC_D)/api.c														\
-		$(SRC_D)/common.c													\
+		$(SRC_D)/sleep.c													\
 		$(SRC_D)/error_and_logging.c										\
 		$(SRC_D)/threading.c												\
 		$(SRC_D)/memvector1.c												\
@@ -17,13 +17,13 @@ SRC =	$(SRC_D)/api.c														\
 		$(SRC_D)/networking/client.c										\
 		$(SRC_D)/networking/server.c										\
 		$(SRC_D)/networking/queue.c											\
-		$(SRC_D)/networking/pooling.c
+		$(SRC_D)/networking/pooling.c										\
+		$(SRC_D)/networking/container.c										\
+		$(SRC_D)/networking/framing.c
 
 
 INC =	$(INC_D)/ito.h														\
 		$(INC_D)/ito_internal.h												\
-		$(INC_D)/packaging.h												\
-		$(INC_D)/networking.h
 
 OBJ :=	$(SRC:$(SRC_D)/%.c=$(OBJ_D)/%.o)
 

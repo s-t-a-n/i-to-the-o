@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/25 19:12:27 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/04 23:11:34 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/08 22:18:24 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@
 #include <string.h>
 #include <time.h>
 
-#include "common.h"
 #include "ito.h"
 
 /*

@@ -6,121 +6,140 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/01 20:21:31 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/06 20:45:11 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/09 00:31:44 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "networking.h"
+#include "networking/pooling.h"
+#include "networking/conscript.h"
+#include "networking/networking.h"
 
-static int		read_frame_header(int descriptor, t_server *server)
+static unsigned char	*recv_frame_header(int descriptor, unsigned char *frame_buffer)
 {
-	char		recv_buffer[NT_BUF_SIZE + 1];
-	int			bytes_received;
-	ssize_t		bytes_read;
-	ssize_t		bytes_read_actual;
-	int			read_miss_counter;
+	ssize_t					bytes_read;
+	ssize_t					bytes_read_actual;
+	int						read_miss_counter;
 
-	// READ HEADER -> put in seperate function
 	bytes_read = 0;
 	read_miss_counter = 0;
-	while(bytes_read < NT_FRAME_HEADER_SIZE)
+	while(bytes_read < FRAME_HEADER_LEN)
 	{
-		bytes_read_actual = recv(descriptor, recv_buffer, NT_FRAME_HEADER_SIZE - bytes_read, 0);
+		bytes_read_actual = recv(descriptor, frame_buffer + bytes_read,
+				FRAME_HEADER_LEN - bytes_read, 0);
 		if (bytes_read_actual < 0)
 		{
 			handle_error("Sever: process_request", "couldn't read request!",
-                	                strerror(errno), ERR_WARN);
-			break;
+					strerror(errno), ERR_WARN);
+			return (NULL);
 		}
 		else if (bytes_read_actual == 0)
 		{
 			read_miss_counter++;
-			if (read_mis_counter >= NT_READ_MAXRETRY)
+			if (read_miss_counter >= NT_READ_MAXRETRY)
 			{
 				handle_error("Server: process_request",
-					"Frame header couldn't be read!", NULL, ERR_WARN);
-                                return (-1);
+						"Frame header couldn't be read!", NULL, ERR_WARN);
+				return (NULL);
 			}
 			LOG_DEBUG("Server : Thread %d : %s\n", (int)pthread_self(),
-				"bytes read was zero, sleeping.");
-                        sleep_micro(NT_READ_DELAY);
+					"bytes read was zero, sleeping..");
+			sleep_micro(NT_READ_DELAY);
 		}
 		else
 			bytes_read += bytes_read_actual;
 	}
+	return (frame_buffer);
 }
 
-// NEEDED:
-// adjust everything for SO_KEEPALIVE and adjust queue accordingly
+static int		process_package_rq(t_conscript *conscript, unsigned char *frameheader, t_network *network)
+{
+	t_conscript *conscript_intable;
 
-static int		process_request(int descriptor, t_server *server)
+	LOG_DEBUG("Server : Thread %d : %s : %s : %i\n", (int)pthread_self(), "process_package_rq", "handling request for package!", conscript->socketfd);
+	
+	// if is_client_know returns non-null -> mutex  is locked!
+	conscript_intable = is_client_known(network->pool, conscript);
+	if (conscript_intable)
+	{
+		// listen to further packages here
+
+		t_container *container = &conscript_intable->container_in;
+		container->vector->index = 0;
+		if (!mvector1_pushback(&container->vector, frameheader, FRAME_HEADER_LEN))
+		{
+			handle_error("process_package_rq", strerror(errno), NULL, ERR_CRIT);
+			return(-1);
+		}
+		
+	}
+	else
+		handle_error("process_package_rq", " unknown client is sending requests to server!", NULL, ERR_WARN);
+	return (-1);
+}
+
+static int		process_join_rq(t_conscript *conscript, unsigned char *frameheader, t_network *network)
 {
 
+	LOG_DEBUG("Server : Thread %d : %s : %s : %i\n", (int)pthread_self(), "process_join_rq", "handling request to join!", conscript->socketfd);
+	network = NULL;
+	frameheader = NULL;
+	return (-1);
+
+}
+
+static int		process_request(t_conscript *conscript, t_network *network)
+{
+	unsigned char			frame_buffer[NT_RECV_BUFSIZE];
+	t_request_type			reqtype;
+
 	LOG_DEBUG("Server : Thread %d : %s : %i\n", (int)pthread_self(),
-		"processing request", descriptor);
-	
-
-	// read frameheader first
-	// if request JOIN -> handle pooling
-	// if request PING -> send ping back
-	// if request PACKAGE -> enter thread and keep listening
-	// 	add to ping queue
-
-	// seperate thread for handling connection KEEPALIVE
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	// OLD
-	bytes_received = recv(descriptor, recv_buffer, NT_BUF_SIZE, 0);
-
-	if (bytes_received < 0)
+			"processing request", conscript->socketfd);
+	if (!recv_frame_header(conscript->socketfd, frame_buffer))
 	{
-		handle_error("process_request", "problem receiving message",
-				strerror(errno), ERR_WARN);
+		handle_error("Server : process request", "couldn't read frame heaeder!",
+				NULL,  ERR_WARN);
+		return (-1);
+	}
+	if (frame_validate_signature(frame_buffer) <= 0)
+	{
+		handle_error("Server : process request", "frame has invalid signature!",
+				NULL,  ERR_WARN);
+		close(conscript->socketfd);
 		return (-1);
 	}
 
-	//recv_buffer[bytes_received] = '\0';
+	reqtype = frame_read_reqtype(frame_buffer);
 
-	// do all processing here
-
-	/*
-	if (close(descriptor) < 0)
+	switch (reqtype)
 	{
-		handle_error("process_request", "couldnt close socket:",
-				strerror(errno), ERR_WARN);
-		return(-1);
+		case JOIN:
+			return(process_join_rq(conscript, frame_buffer, network));
+		case PACKAGE:
+			return(process_package_rq(conscript, frame_buffer, network));
+		case ILLEGAL:
+			handle_error("Server : process request", "frame has illegal request type!", NULL,  ERR_WARN);
+			return (-1);
+		default:
+			handle_error("Server : process request", "frame has invalid request type!", NULL,  ERR_WARN);
+			return (-1);
 	}
-	*/
-
 	return (1);
 }
 
 static void		*worker_requests(void *arg)
 {
-	t_server	*server = (t_server *)arg;
-	int			*descriptor;
+	t_network	*network = (t_network *)arg;
+	t_server	*server = network->server;
+	t_conscript	*conscript;
 
 	while (server->state == NT_STATE_READY)
 	{
-		descriptor = (int *)queue_safe_get(server->queue);
-		if (descriptor)
+		conscript = (t_conscript *)queue_safe_get(server->queue);
+		if (conscript)
 		{
-			process_request(*descriptor, server);
-			free(descriptor);
+			process_request(conscript, network);
+			// BIG FAT MEMORY LEAK HERE -> WHEN TO FREE?
+			free(conscript);
 		}
 	}
 
@@ -131,8 +150,9 @@ static void		*worker_requests(void *arg)
 // store socketfd -> send it to pool
 static void		*worker_incoming(void *arg)
 {
-	t_server	*server = (t_server *)arg;
-	int			*descriptor;
+	t_network	*network = (t_network *)arg;
+	t_server	*server = network->server;
+	t_conscript *conscript;
 
 	if (listen(server->socket, NT_QUEUE_BACKLOG) != 0)
 	{
@@ -145,25 +165,29 @@ static void		*worker_incoming(void *arg)
 		LOG_VERBOSE("Thread : %d, %s\n", (int)pthread_self(), "server is accepting requests!");
 		while (server->state == NT_STATE_READY)
 		{
-			descriptor = malloc(sizeof(int));
-			if (descriptor)
+			conscript = malloc(sizeof(t_conscript));
+			if (conscript)
 			{
-				*descriptor = accept(server->socket, (struct sockaddr *)NULL, NULL);
-				if (*descriptor < 0 && errno != ECONNABORTED)
+				conscript->socketfd = accept(server->socket, (struct sockaddr *)&conscript->sockaddr, &conscript->socklen);
+				if (conscript->socketfd < 0 && errno != ECONNABORTED)
 				{
 					handle_error("worker_incoming", "problem with incoming request",
 							strerror(errno), ERR_WARN);
-					free(descriptor);
+					free(conscript);
 				}
 				else
 				{
-					if (setsockopt(*descriptor, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0)
+					int error = 0;
+					error += setsockopt(conscript->socketfd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
+					error += setsockopt(conscript->socketfd, SOL_SOCKET, SO_KEEPALIVE, &(int){1}, sizeof(int));
+					if (error > 0)
 					{
 						handle_error("worker_incoming", "couldnt set socket opts:", strerror(errno), ERR_WARN);
-						close(*descriptor);
+						close(conscript->socketfd);
+						free(conscript);
 					}
 					else
-						queue_safe_add(server->queue, (void *)descriptor);
+						queue_safe_add(server->queue, (void *)conscript);
 				}
 			}
 			else
@@ -179,7 +203,7 @@ void			shutdown_server(t_server *server)
 	server->state = NT_STATE_STOP;
 	pthread_mutex_lock(&server->queue->lock);
 	if (close(server->socket) < 0)
-		handle_error("shutdown_server", "couldnt close socket!",
+		handle_error("shutdown_server", "couldnt close socket properly!",
 				strerror(errno), ERR_CRIT);
 	while(server->queue->size > 0)
 	{
@@ -189,11 +213,12 @@ void			shutdown_server(t_server *server)
 		queue_pop(server->queue);
 	}
 	queue_drop(server->queue);
-	free(server->thread_tab);
+	spin_down_threads(server->workers_count, server->workers);
+	spin_down_threads(1, &server->master);
 	free(server);
 }
 
-t_server		*initialise_server(void)
+t_server		*initialise_server(t_network *network)
 {
 	t_server *server;
 
@@ -209,66 +234,60 @@ t_server		*initialise_server(void)
 			return(NULL);
 		}
 
-		server->thread_tab = malloc(sizeof(pthread_t) * (NT_WORKERS_MAX + 1));
-		if (server->thread_tab)
+		server->socket = socket(AF_INET, SOCK_STREAM, 0);
+		if (server->socket < 0)
 		{
-			server->socket = socket(AF_INET, SOCK_STREAM, 0);
-			if (server->socket < 0)
-			{
-				handle_error("initialise_server", "couldnt open socket!",
-						strerror(errno), ERR_CRIT);
-				free(server->thread_tab);
-				queue_drop(server->queue);
-				free(server);
-				return(NULL);
-			}
-
-			if (setsockopt(server->socket, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0)
-			{
-				handle_error("initialise_server", "couldnt set socket options!",
-						strerror(errno), ERR_CRIT);
-				queue_drop(server->queue);
-				close(server->socket);
-				free(server->thread_tab);
-				free(server);
-				return(NULL);
-			}
-
-			server->address.sin_family = AF_INET;
-			server->address.sin_port = htons(NT_PORT);
-			server->address.sin_addr.s_addr = htonl(INADDR_ANY);
-			memset(&server->address.sin_zero, 0, sizeof(server->address.sin_zero));
-
-			if (bind(server->socket, (struct sockaddr *)&server->address,
-						sizeof(server->address)) < 0)
-			{
-				handle_error("initialise_server", "couldn't bind to socket!",
-						strerror(errno), ERR_CRIT);
-				close(server->socket);
-				queue_drop(server->queue);
-				free(server->thread_tab);
-				free(server);
-				return(NULL);
-			}
-
-			server->state = NT_STATE_READY;
-			// REDO SPIN UP with threads.h
-			/*
-			if (!spin_up_threads(server->thread_tab, server))
-			{
-				handle_error("initialise_server", "couldn't spin up threads!",
-						strerror(errno), ERR_CRIT);
-				close(server->socket);
-				queue_drop(server->queue);
-				free(server->thread_tab);
-				free(server);
-				return (NULL);
-			}
-			*/
+			handle_error("initialise_server", "couldnt open socket!",
+					strerror(errno), ERR_CRIT);
+			free(server->workers);
+			queue_drop(server->queue);
+			free(server);
+			return(NULL);
 		}
-		else
+		if (setsockopt(server->socket, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0)
+		{
+			handle_error("initialise_server", "couldnt set socket options!",
+					strerror(errno), ERR_CRIT);
+			queue_drop(server->queue);
+			close(server->socket);
+			free(server->workers);
+			free(server);
+			return(NULL);
+		}
+
+		server->address.sin_family = AF_INET;
+		server->address.sin_port = htons(NT_PORT);
+		server->address.sin_addr.s_addr = htonl(INADDR_ANY);
+		memset(&server->address.sin_zero, 0, sizeof(server->address.sin_zero));
+		network->server = server;
+
+		if (bind(server->socket, (struct sockaddr *)&server->address,
+					sizeof(server->address)) < 0)
+		{
+			handle_error("initialise_server", "couldn't bind to socket!",
+					strerror(errno), ERR_CRIT);
+			close(server->socket);
+			queue_drop(server->queue);
+			free(server->workers);
+			free(server);
+			return(NULL);
+		}
+
+		server->state = NT_STATE_READY;
+		server->workers_count = NT_WORKERS_DEF;
+		server->workers = spin_up_threads(NT_WORKERS_DEF, NT_WORKERS_MAX, 0, worker_requests, (void *)network);
+		if (!server->workers)
 		{
 			handle_error("initialise_server", strerror(errno), NULL, ERR_CRIT);
+			queue_drop(server->queue);
+			free(server);
+			return(NULL);
+		}
+		server->master = spin_up_thread(0, worker_incoming, (void *)network);
+		if (!server->master)
+		{
+			handle_error("initialise_server", strerror(errno), NULL, ERR_CRIT);
+			spin_down_threads(server->workers_count, server->workers);
 			queue_drop(server->queue);
 			free(server);
 			return(NULL);

@@ -6,18 +6,19 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/02 21:19:15 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/03 18:37:29 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/09 00:24:59 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "networking.h"
+#include "networking/networking.h"
 #include "ito_internal.h"
 
 int	main(void)
 {
 	t_server	*server;
+	t_network	network;
 
-	server = initialise_server();
+	server = initialise_server(&network);
 	if (server)
 	{
 		sleep(60);

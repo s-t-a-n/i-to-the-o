@@ -6,17 +6,17 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/01 20:21:25 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/06 20:45:42 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/08 22:02:06 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "networking.h"
+#include "networking/networking.h"
 
 // NEEDED:
 // f: client_request_access (no thread)
 // interaction with pool
 
-static int		process_request(t_package_nt *package)
+static int		process_request(t_container *container)
 {
 	ssize_t		bytes_written;
 	ssize_t		bytes_written_actual;
@@ -25,9 +25,9 @@ static int		process_request(t_package_nt *package)
 	LOG_DEBUG("Client : Thread %d : %s\n", (int)pthread_self(), "processing request");
 	bytes_written = 0;
 	write_miss_counter = 0;
-	while(bytes_written < package->index)
+	while(bytes_written < container->vector->index)
 	{
-		bytes_written_actual = write(package->socketfd, package->mem + bytes_written, package->index);
+		bytes_written_actual = write(container->socketfd, container->vector->mem + bytes_written, container->vector->index);
 		if (bytes_written_actual < 0)
 		{
 			handle_error("process_request", "couldn't send request!",
@@ -43,7 +43,7 @@ static int		process_request(t_package_nt *package)
 						NULL, ERR_WARN);
 				return (-1);
 			}
-			LOG_DEBUG("Client : Thread %d : %s\n", (int)pthread_self(), "bytes written was zero, sleeping.");
+			LOG_DEBUG("Client : Thread %d : %s\n", (int)pthread_self(), "bytes written was zero, sleeping..");
 			sleep_micro(NT_WRITE_DELAY);
 		}
 		else
@@ -57,33 +57,33 @@ static int		process_request(t_package_nt *package)
 static void		*worker_requests(void *arg)
 {
 	t_client			*client = (t_client *)arg;
-	t_package_nt		*package;
+	t_container			*container;
 
 	LOG_VERBOSE("Thread : %d, %s\n", (int)pthread_self(), "client is ready for requests!");
 	while(client->state == NT_STATE_READY)
 	{
-		package = (t_package_nt *)queue_safe_get(client->queue);
-		process_request(package);
+		container = (t_container *)queue_safe_get(client->queue);
+		process_request(container);
 	}
 	return (NULL);
 }
 
 void			shutdown_client(t_client *client)
 {
-	t_package_nt	*package;
+	t_container	*container;
 
 	LOG_DEBUG("%s\n", "shutting down client!");
 	client->state = NT_STATE_STOP;
 	pthread_mutex_lock(&client->queue->lock);
 	while(client->queue->size > 0)
 	{
-		package = queue_peek(client->queue);
-		free(package->mem);
-		free(package);
+		container = (t_container *)queue_peek(client->queue);
+		mvector1_destroy(container->vector);
+		free(container);
 		queue_pop(client->queue);
 	}
 	queue_drop(client->queue);
-	free(client->thread_tab);
+	free(client->workers);
 	free(client);
 }
 
@@ -101,31 +101,18 @@ t_client		*initialise_client(void)
 			free(client);
 			return(NULL);
 		}
-		client->thread_tab = malloc(sizeof(pthread_t) * NT_WORKERS_MAX);
-		if (client->thread_tab)
-		{
-			client->state = NT_STATE_READY;
-			// redo SPIN UP with threads.h
-			/*
-			if (!spin_up_threads(client->thread_tab, client))
-			{
-				handle_error("initialise_client", "couldn't spin up threads!",
-						strerror(errno), ERR_CRIT);
-				queue_drop(client->queue);
-				free(client->thread_tab);
-				free(client);
-				return(NULL);
-			}
-			*/
-		}
-		else
+
+		client->state = NT_STATE_READY;
+
+		client->workers = spin_up_threads(NT_WORKERS_DEF, NT_WORKERS_MAX, 0,
+				worker_requests, (void *)client);
+		if (!client->workers)
 		{
 			handle_error("initialise_client", strerror(errno), NULL, ERR_CRIT);
 			queue_drop(client->queue);
 			free(client);
 			return (NULL);
 		}
-
 	}
 	else
 		handle_error("initialise_client", strerror(errno), NULL, ERR_CRIT);

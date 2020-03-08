@@ -1,20 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   conscript.c                                        :+:    :+:            */
+/*   authentication.h                                   :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2020/03/06 18:38:15 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/08 23:56:25 by sverschu      ########   odam.nl         */
+/*   Created: 2020/03/08 22:36:20 by sverschu      #+#    #+#                 */
+/*   Updated: 2020/03/08 22:37:47 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "conscript.h"
-/*
-t_conscript		conscript_initiate()
-{
+#ifndef AUTHENTICATION_H
+# define AUTHENTICATION_H
 
-}
-*/
-
+// all stubs here for now
+int		authenticate_client(unsigned char *frame);
+# endif

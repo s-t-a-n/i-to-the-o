@@ -6,11 +6,11 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/02 18:33:37 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/04 00:29:22 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/08 22:04:34 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "networking.h"
+#include "networking/queue.h"
 
 /*
 ** queue was inspired by (if not just ripped off from) https://github.com/Guppster/MultiThreaded-Server

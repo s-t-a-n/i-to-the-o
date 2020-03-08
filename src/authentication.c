@@ -1,20 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   conscript.c                                        :+:    :+:            */
+/*   authentication.c                                   :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2020/03/06 18:38:15 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/08 23:56:25 by sverschu      ########   odam.nl         */
+/*   Created: 2020/03/08 22:35:09 by sverschu      #+#    #+#                 */
+/*   Updated: 2020/03/08 22:38:46 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "conscript.h"
-/*
-t_conscript		conscript_initiate()
+// WELCOME TO STUBLAND, WHERE FOREVER STUBS WILL BE
+
+#include "networking/authentication.h"
+
+int		authenticate_client(unsigned char *frame)
 {
-
+	frame = NULL;
+	return (1);
 }
-*/
-
