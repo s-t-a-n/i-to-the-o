@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/04 19:18:59 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/08 22:02:24 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/09 17:29:07 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ void					bombard(t_client *client, struct addrinfo *info, int descriptor)
 	container = container_create(512, info, descriptor, 0);
 	container->vector->mem = package.mem;
 	container->vector->index = package.index;
-	frame_insert(container, PACKAGE);
+	frame_insert(container, JOIN);
 	printf("client: %c : %c : %c : %c\n",container->vector->mem[0],container->vector->mem[1],container->vector->mem[2], container->vector->mem[3]);
 	queue_safe_add(client->queue, (void *)container);
 }
@@ -57,7 +57,7 @@ int						main(void)
 	t_client			*client;
 	int					count = 10000;
 
-	client = initialise_client();
+	client = client_initialise();
 	if (client)
 	{
 		struct addrinfo *info = conv_to_addrinfo(strdup("127.0.0.1"), NT_PORT);
@@ -80,7 +80,7 @@ int						main(void)
 		LOG_DEBUG("%s\n", "stopping client!");
 		client->state = NT_STATE_STOP;
 		sleep(1);
-		shutdown_client(client);
+		client_shutdown(client);
 	}
 	else
 		handle_error("main_client_t Main", "couldn't initialise client!", NULL, ERR_CRIT);

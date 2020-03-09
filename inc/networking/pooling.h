@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/08 22:27:20 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/09 00:20:57 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/09 17:26:17 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,15 +17,18 @@
 
 typedef struct				s_pool
 {
-	int					carriers_count;
-	t_conscript				*carriers;
-	t_conscript				*members;
-	int					members_count;
+	int						relaycount;
+	t_conscript				**relays;
+	t_conscript				**members;
+	int						membercount;
 }							t_pool;
 
-# define POOL_SIZE			5
+# define POOL_RELAY_COUNT	5
+# define POOL_MEMBR_COUNT	5
 
 t_conscript					*is_client_known(t_pool *pool, t_conscript *conscript);
-t_pool						*pool_initiate(int carriers, int members);
+t_pool						*pool_initialise(int carriers, int members);
+int							pool_add_member(t_pool *pool, t_conscript *conscript);
+int							pool_add_relay(t_pool *pool, t_conscript *conscript);
 
 #endif

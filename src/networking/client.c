@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/01 20:21:25 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/08 22:02:06 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/09 17:18:01 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ static void		*worker_requests(void *arg)
 	return (NULL);
 }
 
-void			shutdown_client(t_client *client)
+void			client_shutdown(t_client *client)
 {
 	t_container	*container;
 
@@ -87,7 +87,7 @@ void			shutdown_client(t_client *client)
 	free(client);
 }
 
-t_client		*initialise_client(void)
+t_client		*client_initialise(void)
 {
 	t_client	*client;
 

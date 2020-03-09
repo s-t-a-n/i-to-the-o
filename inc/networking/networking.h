@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/01 21:43:08 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/09 00:32:12 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/09 17:26:42 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,13 +96,17 @@ int							open_connection_sync(struct addrinfo *info);
 /*
 ** server.c
 */
-t_server					*initialise_server(t_network *network);
-void						shutdown_server(t_server *server);
+t_server					*server_initialise(t_network *network);
+void						server_shutdown(t_server *server);
 
 /*
 ** client.c
 */
-t_client					*initialise_client(void);
-void						shutdown_client(t_client *client);
+t_client					*client_initialise(void);
+void						client_shutdown(t_client *client);
 
+/*
+** network.c
+*/
+t_network					*network_initialise(void);
 #endif

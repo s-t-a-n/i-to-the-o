@@ -19,7 +19,9 @@ SRC =	$(SRC_D)/api.c														\
 		$(SRC_D)/networking/queue.c											\
 		$(SRC_D)/networking/pooling.c										\
 		$(SRC_D)/networking/container.c										\
-		$(SRC_D)/networking/framing.c
+		$(SRC_D)/networking/conscript.c										\
+		$(SRC_D)/networking/framing.c										\
+		$(SRC_D)/networking/network.c
 
 
 INC =	$(INC_D)/ito.h														\
@@ -42,6 +44,9 @@ WARN_STRING=$(WARN_COLOR)[WARNINGS]$(NO_COLOR)
 
 ECHO=printf
 CAT=cat
+
+# debugger
+DBG = lldb
 
 # compiler and linker
 CC = clang
@@ -108,7 +113,7 @@ api_test: $(NAME)
         $(ECHO) "$(OK_STRING)\n";                                           \
     fi
 	@$(ECHO) "Running $(TEST)...\n"
-	@time ./$(TEST) && $(RM) -f $(TEST) && $(RM) -rf $(TEST).dSYM 2>$(CC_LOG) || touch $(CC_ERROR)
+	@time $(DBG) ./$(TEST) && $(RM) -f $(TEST) && $(RM) -rf $(TEST).dSYM 2>$(CC_LOG) || touch $(CC_ERROR)
 	@if test -e $(CC_ERROR); then                                           \
 		$(ECHO) "Completed $(TEST): $(ERROR_STRING)\n" && $(CAT) $(CC_LOG);		\
     elif test -s $(CC_LOG); then											\
@@ -130,7 +135,7 @@ server_test: $(NAME)
         $(ECHO) "$(OK_STRING)\n";                                           \
     fi
 	@$(ECHO) "Running $(TEST)...\n"
-	@time ./$(TEST) && $(RM) -f $(TEST) && $(RM) -rf $(TEST).dSYM 2>$(CC_LOG) || touch $(CC_ERROR)
+	@time $(DBG) ./$(TEST) && $(RM) -f $(TEST) && $(RM) -rf $(TEST).dSYM 2>$(CC_LOG) || touch $(CC_ERROR)
 	@if test -e $(CC_ERROR); then                                           \
 		$(ECHO) "Completed $(TEST): $(ERROR_STRING)\n" && $(CAT) $(CC_LOG);		\
     elif test -s $(CC_LOG); then											\
@@ -152,7 +157,7 @@ client_test: $(NAME)
         $(ECHO) "$(OK_STRING)\n";                                           \
     fi
 	@$(ECHO) "Running $(TEST)...\n"
-	@time ./$(TEST) && $(RM) -f $(TEST) && $(RM) -rf $(TEST).dSYM 2>$(CC_LOG) || touch $(CC_ERROR)
+	@time $(DBG) ./$(TEST) && $(RM) -f $(TEST) && $(RM) -rf $(TEST).dSYM 2>$(CC_LOG) || touch $(CC_ERROR)
 	@if test -e $(CC_ERROR); then                                           \
 		$(ECHO) "Completed $(TEST): $(ERROR_STRING)\n" && $(CAT) $(CC_LOG);		\
     elif test -s $(CC_LOG); then											\

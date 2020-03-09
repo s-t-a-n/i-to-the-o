@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/01 20:21:31 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/09 00:31:44 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/09 17:17:35 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,8 +63,6 @@ static int		process_package_rq(t_conscript *conscript, unsigned char *frameheade
 	{
 		// listen to further packages here
 
-					printf("no probs\n");
-					exit(0);
 		t_container *container = &conscript_intable->container_in;
 		container->vector->index = 0;
 		if (!mvector1_pushback(&container->vector, frameheader, FRAME_HEADER_LEN))
@@ -81,12 +79,13 @@ static int		process_package_rq(t_conscript *conscript, unsigned char *frameheade
 
 static int		process_join_rq(t_conscript *conscript, unsigned char *frameheader, t_network *network)
 {
-
 	LOG_DEBUG("Server : Thread %d : %s : %s : %i\n", (int)pthread_self(), "process_join_rq", "handling request to join!", conscript->socketfd);
-	network = NULL;
+	// no authenthication for now
+	if (pool_add_member(network->pool, conscript))
+		return (1);
+	else
+		return (-1);
 	frameheader = NULL;
-	return (-1);
-
 }
 
 static int		process_request(t_conscript *conscript, t_network *network)
@@ -200,7 +199,7 @@ static void		*worker_incoming(void *arg)
 	return(NULL);
 }
 
-void			shutdown_server(t_server *server)
+void			server_shutdown(t_server *server)
 {
 	LOG_DEBUG("%s\n", "shutting down server!");
 	server->state = NT_STATE_STOP;
@@ -221,7 +220,7 @@ void			shutdown_server(t_server *server)
 	free(server);
 }
 
-t_server		*initialise_server(t_network *network)
+t_server		*server_initialise(t_network *network)
 {
 	t_server *server;
 
