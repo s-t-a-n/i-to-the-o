@@ -63,6 +63,8 @@ static int		process_package_rq(t_conscript *conscript, unsigned char *frameheade
 	{
 		// listen to further packages here
 
+					printf("no probs\n");
+					exit(0);
 		t_container *container = &conscript_intable->container_in;
 		container->vector->index = 0;
 		if (!mvector1_pushback(&container->vector, frameheader, FRAME_HEADER_LEN))
@@ -168,7 +170,8 @@ static void		*worker_incoming(void *arg)
 			conscript = malloc(sizeof(t_conscript));
 			if (conscript)
 			{
-				conscript->socketfd = accept(server->socket, (struct sockaddr *)&conscript->sockaddr, &conscript->socklen);
+				conscript->socklen = sizeof(struct sockaddr_in);
+				conscript->socketfd = accept(server->socket, (struct sockaddr *)&conscript->sockaddr_in, &conscript->socklen);
 				if (conscript->socketfd < 0 && errno != ECONNABORTED)
 				{
 					handle_error("worker_incoming", "problem with incoming request",

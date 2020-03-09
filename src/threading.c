@@ -29,7 +29,7 @@ pthread_t	spin_up_thread(pthread_attr_t *attr, void *(*main)(void *), void *arg)
 	{
 		handle_error("spin_up_thread", "couldn't spin up thread",
 				strerror(errno), ERR_CRIT);
-		return (NULL);
+		return (0);
 	}
 	return (thread);
 }

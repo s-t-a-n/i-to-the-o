@@ -17,8 +17,10 @@
 
 typedef struct				s_pool
 {
+	int					carriers_count;
 	t_conscript				*carriers;
 	t_conscript				*members;
+	int					members_count;
 }							t_pool;
 
 # define POOL_SIZE			5

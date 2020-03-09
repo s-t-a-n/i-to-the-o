@@ -54,6 +54,7 @@ CC_FLAGS_TESTS = -Werror -Wextra -Wall -g -fsanitize=address -DDEBUG
 # debugging or optimization flags
 ifeq ($(DEBUG),1)
     CC_FLAGS += -g -fsanitize=address -DDEBUG
+    export  LSAN_OPTIONS=verbosity=1:log_threads=1
 else
     CC_FLAGS += -O3 -march=native
 endif

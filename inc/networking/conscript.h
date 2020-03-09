@@ -22,8 +22,8 @@
 
 typedef struct				s_conscript
 {
-	struct addrinfo			*addrinfo;
-	struct sockaddr			sockaddr;
+	struct addrinfo			addrinfo;
+	struct sockaddr_in			sockaddr_in;
 	socklen_t				socklen;
 	char					*ipv4_addr;
 	char					*ipv6_addr;

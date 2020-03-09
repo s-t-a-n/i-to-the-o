@@ -21,7 +21,7 @@ struct addrinfo		*conv_to_addrinfo(char *hostname, int port)
 
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_DEFAULT;
+	hints.ai_flags = AI_ADDRCONFIG | AI_V4MAPPED;
 	
 	snprintf(service, 8, "%d", port);
 

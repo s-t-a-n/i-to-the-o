@@ -25,16 +25,17 @@ t_conscript		*is_client_known(t_pool *pool, t_conscript *conscript)
 	// probably want to do authentication here
 	// for now, ip checking is considered 'authentication'
 
-	for (int i = 0; i < POOL_SIZE; i++)
+	return (NULL);
+	for (int i = 0; i < pool->members_count; i++)
 	{
 		// lock must be initialized
 		if (pthread_mutex_trylock(&pool->members[i].lock) == 0)
 		{
-			struct sockaddr_in	*ipv4_addr = (struct sockaddr_in *)&conscript->sockaddr;
+			struct sockaddr_in	*ipv4_addr = (struct sockaddr_in *)&conscript->sockaddr_in;
 			char ipv4_addr_str[INET_ADDRSTRLEN];
 			inet_ntop(AF_INET, (struct in_addr *)&ipv4_addr->sin_addr, ipv4_addr_str, INET_ADDRSTRLEN);
 
-			struct sockaddr_in6	*ipv6_addr = (struct sockaddr_in6 *)&conscript->sockaddr;
+			struct sockaddr_in6	*ipv6_addr = (struct sockaddr_in6 *)&conscript->sockaddr_in;
 			char ipv6_addr_str[INET6_ADDRSTRLEN];
 			inet_ntop(AF_INET6, (struct in_addr *)&ipv6_addr->sin6_addr, ipv6_addr_str, INET6_ADDRSTRLEN);
 			if (strncmp(pool->members[i].ipv4_addr, ipv4_addr_str, INET_ADDRSTRLEN) == 0)
