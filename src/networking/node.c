@@ -6,13 +6,14 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/06 18:38:15 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/10 21:36:54 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 23:37:47 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "networking/node.h"
 
-void			node_destroy(t_node *node)
+// needs a heck more love
+void			node_shutdown(t_node *node)
 {
 	pthread_mutex_destroy(&node->lock);
 	free(node);

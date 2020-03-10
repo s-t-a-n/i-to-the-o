@@ -23,6 +23,8 @@ SRC =	$(SRC_D)/api.c														\
 		$(SRC_D)/networking/container.c										\
 		$(SRC_D)/networking/node.c											\
 		$(SRC_D)/networking/framing.c										\
+		$(SRC_D)/networking/nodestack.c										\
+		$(SRC_D)/networking/requests.c										\
 		$(SRC_D)/networking/network.c
 
 

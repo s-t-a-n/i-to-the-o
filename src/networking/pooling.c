@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/03 22:00:15 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/10 21:41:37 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 23:38:19 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 #include <sys/socket.h>
@@ -48,10 +48,6 @@ t_node		*is_client_a_node(t_pool *pool, t_node *node, char *ipv4_addr_str, char 
 					return(pool->nodes[i]);
 				else if (strncmp(pool->nodes[i]->ipv6_addr, ipv6_addr_str, INET6_ADDRSTRLEN) == 0)
 					return(pool->nodes[i]);
-			}
-			else
-			{
-				printf("no fun with lock  : %i\n", pthread_mutex_trylock(&pool->nodes[i]->lock));
 			}
 		}
 	}
@@ -115,7 +111,7 @@ int		pool_add_node(t_pool *pool, t_node *node)
 	else
 	{
 		LOG_DEBUG("Thread %d : %s : %s\n", (int)pthread_self(), "pool_add_node", "Pool is full!");
-		node_discharge(node);
+		node_shutdown(node);
 		return (-1);
 	}
 	return (-1);
@@ -134,7 +130,7 @@ int		pool_add_supernode(t_pool *pool, t_node *node)
 	else
 	{
 		LOG_DEBUG("Thread %d : %s : %s\n", (int)pthread_self(), "pool_add_supernode", "Pool is full!");
-		node_discharge(node);
+		node_shutdown(node);
 		return (-1);
 	}
 	return (-1);

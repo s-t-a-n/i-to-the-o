@@ -6,12 +6,13 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/05 19:23:07 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/10 18:27:37 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 23:23:44 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "networking/constants.h"
 #include "networking/framing.h"
+#include "networking/requests.h"
 
 /*
 ** frame len should be validated BEFORE calling frame_read_type

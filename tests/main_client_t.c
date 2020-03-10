@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/04 19:18:59 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/10 19:49:29 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 23:36:50 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include "networking/framing.h"
 #include "networking/container.h"
 #include "networking/client.h"
+#include "networking/requests.h"
 #include "ito_internal.h"
 
 typedef struct			s_data
@@ -74,27 +75,28 @@ void					bombard(t_client *client, struct addrinfo *info, int descriptor)
 int						main(void)
 {
 	t_client			*client;
-	int					count = 10000;
+	//int					count = 10000;
 
 	client = client_initialise();
 	if (client)
 	{
-		struct addrinfo *info = conv_to_addrinfo(strdup("127.0.0.1"), NT_PORT);
-		int descriptor = open_connection_sync(info);
-		join_pool(client, info, descriptor);
-		if (info && descriptor >= 0)
-		{
-			for (int i = 0; i < count; i++)
-			{
-				bombard(client, info, descriptor);
-				usleep(400);
-			}
-		}
-		else
-		{
-			handle_error("main_client_t Main", "couldn't connect to client!", NULL, ERR_CRIT);
-			return(-1);
-		}
+		client_send_request(client, JOIN, strdup("127.0.0.1"));
+		//struct addrinfo *info = conv_to_addrinfo(strdup("127.0.0.1"), NT_PORT);
+		//int descriptor = open_connection_sync(info);
+		//join_pool(client, info, descriptor);
+		//if (info && descriptor >= 0)
+		//{
+		//	for (int i = 0; i < count; i++)
+		//	{
+		//		bombard(client, info, descriptor);
+		//		usleep(400);
+		//	}
+		//}
+		//else
+		//{
+		//	handle_error("main_client_t Main", "couldn't connect to client!", NULL, ERR_CRIT);
+		//	return(-1);
+		//}
 		sleep(1);
 		LOG_DEBUG("%s\n", "stopping client!");
 		client->state = NT_STATE_STOP;

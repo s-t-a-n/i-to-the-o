@@ -6,12 +6,15 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/25 17:36:06 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/10 15:57:11 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 23:32:56 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ito_internal.h"
 #include "packaging/packaging.h"
+#include "networking/constants.h"
+#include "networking/network.h"
+#include "networking/requests.h"
 
 int	ito_decompile_package(t_package *package, const char * restrict formatstr, ...)
 {
@@ -74,11 +77,35 @@ int		ito_send_package(t_ito *ito, t_package *package)
 }
 
 // if 255.255.255.255 broadcast to local network and find clients
-t_ito	*ito_quick_init(char *ip)
+t_ito	*ito_quick_init(char *ipv4)
 {
-	//t_ito	ito;
-	ip = NULL;
-	return (NULL);
+	t_ito	*ito;
+
+	ito = malloc(sizeof(t_ito));
+	if (ito)
+	{
+		ito->network = network_initialise();
+		if (!ito->network)
+		{
+			handle_error("ito_quick_init", "ito failed :(", NULL, ERR_CRIT);
+			free(ito);
+			return(NULL);
+		}
+		else
+		{
+			if (!client_send_request(ito->network->client, JOIN, (void *)ipv4))
+			{
+				handle_error("ito_quick_init", "ito failed :(", NULL, ERR_CRIT);
+				return (NULL);
+			}
+			else
+				return (ito);
+		}
+	}
+	else
+		handle_error("ito_quick_init", strerror(errno), NULL, ERR_CRIT);
+	return (ito);
+	ipv4 = NULL;
 }
 
 t_ito	*ito_full_init(t_ito_specs *ito_specs)
@@ -93,8 +120,9 @@ int		ito_shutdown(t_ito *ito)
 	return (0);
 }
 
-int		ito_hook(t_ito *ito, int (*f_ptr)(), void *param)
+int		ito_hook(t_ito *ito, t_ito_event event, int (*f_ptr)(), void *param)
 {
+	event = EV_JOIN;
 	ito = NULL;
 	f_ptr = NULL;
 	param = NULL;

@@ -1,34 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   client.h                                           :+:    :+:            */
+/*   requests.h                                         :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2020/03/10 14:36:12 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/10 23:27:31 by sverschu      ########   odam.nl         */
+/*   Created: 2020/03/10 23:05:32 by sverschu      #+#    #+#                 */
+/*   Updated: 2020/03/10 23:27:10 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CLIENT_H
-# define CLIENT_H
+#ifndef REQUESTS_H
+# define REQUESTS_H
 
-typedef enum				e_request_type t_request_type;
-typedef struct				s_queue t_queue;
+typedef struct	s_client t_client;
 
-typedef struct				s_client
+typedef enum	e_request_type
 {
-	pthread_t				master;
-	pthread_t				*workers;
-	int						workers_count;
-	t_queue					*queue;
-	int						state;
-}							t_client;
+				ILLEGAL,
+				JOIN,
+				PACKAGE
+}				t_request_type;
 
-/*
-** client.c
-*/
-t_client					*client_initialise(void);
-void						client_shutdown(t_client *client);
+int				client_send_request(t_client *client, t_request_type reqtype,
+					void *arg);
 
 #endif

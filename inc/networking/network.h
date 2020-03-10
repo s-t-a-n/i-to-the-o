@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/10 14:37:29 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/10 21:39:07 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 21:56:46 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,13 +28,15 @@
 #include "networking/node.h"
 #include "networking/server.h"
 #include "networking/client.h"
+#include "networking/nodestack.h"
 
 typedef struct				s_network
 {
 	t_server				*server;
 	t_client				*client;
-	t_node				*memberstack;
+	t_node					*memberstack;
 	t_pool					*pool;
+	t_nodestack				*nodestack;
 }							t_network;
 
 /*

@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/08 17:55:55 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/10 19:55:10 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 23:23:27 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,26 +23,23 @@
 **	[FRAME_HEADER_SIG]
 **	[FRAME_HEADER_ROUTING_DATA]
 **	[FRAME_HEADER_REQTYPE]
-**	[BODY]
+**	[FRAME_BODY]
 **	[FRAME_FOOTER_SIG]
 **
 */
 
-typedef enum							e_request_type
-{
-	ILLEGAL,
-	JOIN,
-	PACKAGE
-}										t_request_type;
+typedef enum			e_request_type t_request_type;
 
-typedef union							u_char_as_uint32
+typedef union			u_char_as_uint32
 {
 	unsigned char c[4];
 	uint32_t u;
-}										t_char_as_uint32;
+}						t_char_as_uint32;
 
-int										frame_validate_signature(unsigned char *frameheader);
-t_request_type							frame_read_reqtype(unsigned char *frameheader);
-int										frame_insert(t_container *container, t_request_type reqtype);
-int										frame_detect_footer_signature(const unsigned char *sig, const unsigned char *buffer, int len);
+int						frame_validate_signature(unsigned char *frameheader);
+t_request_type			frame_read_reqtype(unsigned char *frameheader);
+int						frame_insert(t_container *container,
+							t_request_type reqtype);
+int						frame_detect_footer_signature(const unsigned char *sig,
+							const unsigned char *buffer, int len);
 #endif

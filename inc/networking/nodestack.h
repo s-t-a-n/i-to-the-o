@@ -1,34 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   client.h                                           :+:    :+:            */
+/*   nodestack.h                                        :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2020/03/10 14:36:12 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/10 23:27:31 by sverschu      ########   odam.nl         */
+/*   Created: 2020/03/10 21:55:40 by sverschu      #+#    #+#                 */
+/*   Updated: 2020/03/10 21:55:47 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CLIENT_H
-# define CLIENT_H
+#ifndef NODESTACK_H
+# define NODESTACK_H
 
-typedef enum				e_request_type t_request_type;
-typedef struct				s_queue t_queue;
+typedef struct		s_node t_node;
 
-typedef struct				s_client
+typedef struct		s_nodestack
 {
-	pthread_t				master;
-	pthread_t				*workers;
-	int						workers_count;
-	t_queue					*queue;
-	int						state;
-}							t_client;
-
-/*
-** client.c
-*/
-t_client					*client_initialise(void);
-void						client_shutdown(t_client *client);
+	t_node			*nodes;
+	int				count;
+}					t_nodestack;
 
 #endif

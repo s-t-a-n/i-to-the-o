@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/01 20:21:31 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/10 21:38:04 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 23:26:02 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 #include <sys/socket.h>
@@ -29,6 +29,7 @@
 #include "networking/constants.h"
 #include "networking/pooling.h"
 #include "networking/framing.h"
+#include "networking/requests.h"
 #include "networking/node.h"
 
 static unsigned char	*recv_frame_header(int descriptor, unsigned char *frame_buffer)

@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/08 22:28:53 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/10 21:36:46 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 23:37:17 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,5 +33,5 @@ typedef struct				s_node
 }							t_node;
 
 t_node						*node_initiate(struct sockaddr_in, socklen_t socklen);
-void						node_discharge(t_node *node);
+void						node_shutdown(t_node *node);
 #endif
