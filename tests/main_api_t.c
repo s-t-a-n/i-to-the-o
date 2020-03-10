@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/26 20:34:29 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/02 21:19:45 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 15:34:56 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ void		dump_package(t_package *package)
 
 int		main(void)
 {
-	t_package package;
+	t_package	*package;
 	t_data		s_send;
 	t_data		s_recv;
 
@@ -53,15 +53,16 @@ int		main(void)
 	s_send.sfatty = LLONG_MAX;
 
 	char *formatstr = "%f%f%s%i%i%llu%lli";
-	ito_compile_package(&package, formatstr, s_send.x, s_send.y, s_send.name, s_send.id, s_send.flags, s_send.fatty, s_send.sfatty);
-	dump_package(&package);
+	package = ito_compile_package(formatstr, s_send.x, s_send.y, s_send.name, s_send.id, s_send.flags, s_send.fatty, s_send.sfatty);
+	dump_package(package);
 
-	ito_decompile_package(&package, formatstr, &s_recv.x, &s_recv.y, &s_recv.name, &s_recv.id, &s_recv.flags, &s_recv.fatty, &s_recv.sfatty);
+	ito_decompile_package(package, formatstr, &s_recv.x, &s_recv.y, &s_recv.name, &s_recv.id, &s_recv.flags, &s_recv.fatty, &s_recv.sfatty);
 
-	ito_compile_package(&package, formatstr, s_recv.x, s_recv.y, s_recv.name, s_recv.id, s_recv.flags, s_send.fatty, s_send.sfatty);
-	dump_package(&package);
+	package_destroy(package);
+	package = ito_compile_package(formatstr, s_recv.x, s_recv.y, s_recv.name, s_recv.id, s_recv.flags, s_send.fatty, s_send.sfatty);
+	dump_package(package);
 
-	free(package.mem);
+	package_destroy(package);
 	free(s_recv.name);
 	return (0);
 }

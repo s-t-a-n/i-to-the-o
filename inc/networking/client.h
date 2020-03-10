@@ -1,32 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   main_server_t.c                                    :+:    :+:            */
+/*   client.h                                           :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2020/03/02 21:19:15 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/10 15:33:58 by sverschu      ########   odam.nl         */
+/*   Created: 2020/03/10 14:36:12 by sverschu      #+#    #+#                 */
+/*   Updated: 2020/03/10 14:38:23 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <unistd.h>
+#ifndef CLIENT_H
+# define CLIENT_H
 
-#include "networking/server.h"
-#include "networking/network.h"
-#include "networking/constants.h"
-#include "ito_internal.h"
-
-int	main(void)
+typedef struct				s_client
 {
-	t_network	*network;
+	pthread_t				master;
+	pthread_t				*workers;
+	int						workers_count;
+	t_queue					*queue;
+	int						state;
+}							t_client;
 
-	network = network_initialise();
-	sleep(60);
+/*
+** client.c
+*/
+t_client					*client_initialise(void);
+void						client_shutdown(t_client *client);
 
-	LOG_DEBUG("%s\n", "stopping server!");
-	network->server->state = NT_STATE_STOP;
-
-	sleep(10);
-	server_shutdown(network->server);
-}
+#endif

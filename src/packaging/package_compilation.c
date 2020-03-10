@@ -6,11 +6,15 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/25 18:58:07 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/08 22:17:43 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 20:09:26 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <string.h>
+#include <stdio.h>
+
 #include "packaging/packaging.h"
+#include "ito_internal.h"
 
 static int	int_snprintf(char *dst, size_t size, void *var)
 {
@@ -68,9 +72,8 @@ static int	add_data_of_type_to_package(int (*f_type_snprintf)(char *, size_t, vo
 		if (package->index + len < package->mem_cap)
 		{
 			package->index += f_type_snprintf((char *)&package->mem[package->index], len, var) + 1;
-			//(package->elem_count)++;
 		}
-		else if ((package->mem_cap *= 2) < MEMCAP_MAX)
+		else if ((package->mem_cap *= 2) < PACKAGE_MAX_SIZE)
 		{
 			LOG_DEBUG("%s : %s\n","add_data_of_type_to_package", "reallocing package->mem");
 			mem_p_cmp = (unsigned char *)realloc(package->mem, package->mem_cap);
@@ -87,7 +90,7 @@ static int	add_data_of_type_to_package(int (*f_type_snprintf)(char *, size_t, vo
 		}
 		else
 		{
-			handle_error("add_data_of_type_to_package", "MEMCAP_MAX exceeded!", NULL, ERR_WARN);
+			handle_error("add_data_of_type_to_package", "PACKAGE_MEMCAP_MAX exceeded!", NULL, ERR_WARN);
 			return  (ITO_ERROR);
 		}
 	}

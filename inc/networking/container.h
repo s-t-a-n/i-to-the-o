@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/08 19:45:44 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/08 22:33:21 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 17:33:45 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 # define CONTAINER_H
 
 # include "common/memvector1.h"
+
+typedef struct				s_package t_package;
 
 typedef struct				s_container
 {
@@ -23,11 +25,10 @@ typedef struct				s_container
 	uint32_t				flags;
 }							t_container;
 
-# define CONTAINER_MEMCAP_DEF	512
-# define CONTAINER_MEMCAP_MAX	2048
-
+int					container_insert_package(t_package *package,
+						t_container *container);
 void				container_destroy(t_container *container);
 t_container			*container_create(size_t cap, struct addrinfo *addrinfo,
 						int socketfd, uint32_t flags);
-
+void				dump_container(t_container *container);
 #endif

@@ -6,12 +6,11 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/25 17:36:06 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/08 22:19:26 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 15:57:11 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ito_internal.h"
-#include "networking/framing.h"
 #include "packaging/packaging.h"
 
 int	ito_decompile_package(t_package *package, const char * restrict formatstr, ...)
@@ -39,16 +38,16 @@ int	ito_decompile_package(t_package *package, const char * restrict formatstr, .
 	return(ITO_SUCCESS);
 }
 
-int		ito_compile_package(t_package *package, const char * restrict formatstr, ...)
+t_package	*ito_compile_package(const char * restrict formatstr, ...)
 {
 	va_list		args;
+	t_package	*package;
 
 	LOG_DEBUG("%s : %s\n","ito_compile_package", "compiling package!");
+
+	if (!(package = package_initialise()))
+		return (NULL);
 	va_start(args, formatstr);
-	package->mem_cap = MEMCAP_DEF;
-	package->index = FRAME_HEADER_LEN;
-	if (!(package->mem = (unsigned char *)malloc(MEMCAP_DEF + 1)))
-		return (ITO_ERROR);
 	while(*formatstr)
 	{
 		if (*formatstr == '%')
@@ -57,14 +56,14 @@ int		ito_compile_package(t_package *package, const char * restrict formatstr, ..
 			if(!add_data_to_package(&args, formatstr, package))
 			{
 				handle_error("ito_compile_package", strerror(errno), NULL, ERR_CRIT);
-				free(package->mem);
-				return (ITO_ERROR);
+				package_destroy(package);
+				return (NULL);
 			}
 		}
 		formatstr++;
 	}
 	va_end(args);
-	return(ITO_SUCCESS);
+	return(package);
 }
 
 int		ito_send_package(t_ito *ito, t_package *package)

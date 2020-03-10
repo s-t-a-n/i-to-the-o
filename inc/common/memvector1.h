@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/06 19:32:50 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/08 20:04:04 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 20:02:01 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ typedef struct				s_mvector1
 }							t_mvector1;
 
 /*
-** mvector1.c
+** mvector1.c : pushes chars (not char pointers!) into array
 */
 void						mvector1_destroy(t_mvector1 *vec);
 t_mvector1					*mvector1_init(size_t cap);

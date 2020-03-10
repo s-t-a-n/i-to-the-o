@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/08 22:28:53 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/09 17:09:43 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 14:15:10 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,7 @@ typedef struct				s_conscript
 	char					*ipv6_addr;
 	int						socketfd;
 	pthread_mutex_t			lock;
-	t_container				container_in;
-	t_container				container_out;
+	t_container				*container_in;
 }							t_conscript;
 
 t_conscript					*conscript_initiate(struct sockaddr_in, socklen_t socklen);

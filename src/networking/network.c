@@ -6,11 +6,13 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/09 17:14:21 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/09 17:26:35 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 15:31:17 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "networking/networking.h"
+#include "ito_internal.h"
+#include "networking/constants.h"
+#include "networking/network.h"
 
 t_network	*network_initialise(void)
 {

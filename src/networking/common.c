@@ -6,11 +6,25 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/04 17:31:44 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/08 22:03:54 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 14:47:41 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "networking/networking.h"
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <signal.h>
+
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+
+#include "ito_internal.h"
+#include "networking/constants.h"
 
 struct addrinfo		*conv_to_addrinfo(char *hostname, int port)
 {
@@ -77,4 +91,24 @@ int					open_connection_sync(struct addrinfo *info)
 		descriptor = -1;
 	}
 	return (descriptor);
+}
+
+char	*get_ipv6_str(struct sockaddr_in *sai)
+{
+	char					ipv6_addr_str[INET6_ADDRSTRLEN];
+	struct sockaddr_in6		*ipv6_sockaddr;
+	
+	ipv6_sockaddr = (struct sockaddr_in6 *)sai;
+	inet_ntop(AF_INET6, (struct in_addr *)&ipv6_sockaddr->sin6_addr, ipv6_addr_str, INET6_ADDRSTRLEN);
+	return(strndup(ipv6_addr_str, INET6_ADDRSTRLEN));
+}
+
+char	*get_ipv4_str(struct sockaddr_in *sai)
+{
+	char					ipv4_addr_str[INET6_ADDRSTRLEN];
+	struct sockaddr_in		*ipv4_sockaddr;
+	
+	ipv4_sockaddr = (struct sockaddr_in *)sai;
+	inet_ntop(AF_INET, (struct in_addr *)&ipv4_sockaddr->sin_addr, ipv4_addr_str, INET_ADDRSTRLEN);
+	return(strndup(ipv4_addr_str, INET_ADDRSTRLEN));
 }

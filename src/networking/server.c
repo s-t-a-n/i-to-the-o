@@ -6,13 +6,30 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/01 20:21:31 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/09 17:17:35 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 15:59:32 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <signal.h>
 
+#include <stdlib.h>
+#include <string.h>
+
+#include "ito_internal.h"
+#include "common/sleep.h"
+#include "common/threading.h"
+#include "networking/network.h"
+#include "networking/queue.h"
+#include "networking/constants.h"
 #include "networking/pooling.h"
+#include "networking/framing.h"
 #include "networking/conscript.h"
-#include "networking/networking.h"
 
 static unsigned char	*recv_frame_header(int descriptor, unsigned char *frame_buffer)
 {
@@ -49,43 +66,6 @@ static unsigned char	*recv_frame_header(int descriptor, unsigned char *frame_buf
 			bytes_read += bytes_read_actual;
 	}
 	return (frame_buffer);
-}
-
-static int		process_package_rq(t_conscript *conscript, unsigned char *frameheader, t_network *network)
-{
-	t_conscript *conscript_intable;
-
-	LOG_DEBUG("Server : Thread %d : %s : %s : %i\n", (int)pthread_self(), "process_package_rq", "handling request for package!", conscript->socketfd);
-	
-	// if is_client_know returns non-null -> mutex  is locked!
-	conscript_intable = is_client_known(network->pool, conscript);
-	if (conscript_intable)
-	{
-		// listen to further packages here
-
-		t_container *container = &conscript_intable->container_in;
-		container->vector->index = 0;
-		if (!mvector1_pushback(&container->vector, frameheader, FRAME_HEADER_LEN))
-		{
-			handle_error("process_package_rq", strerror(errno), NULL, ERR_CRIT);
-			return(-1);
-		}
-		
-	}
-	else
-		handle_error("process_package_rq", " unknown client is sending requests to server!", NULL, ERR_WARN);
-	return (-1);
-}
-
-static int		process_join_rq(t_conscript *conscript, unsigned char *frameheader, t_network *network)
-{
-	LOG_DEBUG("Server : Thread %d : %s : %s : %i\n", (int)pthread_self(), "process_join_rq", "handling request to join!", conscript->socketfd);
-	// no authenthication for now
-	if (pool_add_member(network->pool, conscript))
-		return (1);
-	else
-		return (-1);
-	frameheader = NULL;
 }
 
 static int		process_request(t_conscript *conscript, t_network *network)

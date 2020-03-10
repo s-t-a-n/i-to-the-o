@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/25 19:12:27 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/08 22:18:24 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 20:06:50 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,6 @@
 ** runtime defines
 */
 # define EXIT_ON_CRIT_ERROR 1
-# define MEMCAP_DEF 100 // default byteamount of memory allocated for packages
-# define MEMCAP_MAX 1000000 // no bigger than a MEMCAP_MAX (def: 1M) packages are allowed
 
 /*
 ** debugging definitions/macros

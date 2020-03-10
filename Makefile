@@ -11,11 +11,13 @@ SRC =	$(SRC_D)/api.c														\
 		$(SRC_D)/error_and_logging.c										\
 		$(SRC_D)/threading.c												\
 		$(SRC_D)/memvector1.c												\
+		$(SRC_D)/packaging/package.c										\
 		$(SRC_D)/packaging/package_compilation.c							\
 		$(SRC_D)/packaging/package_decompilation.c							\
 		$(SRC_D)/networking/common.c										\
 		$(SRC_D)/networking/client.c										\
 		$(SRC_D)/networking/server.c										\
+		$(SRC_D)/networking/server_processing.c								\
 		$(SRC_D)/networking/queue.c											\
 		$(SRC_D)/networking/pooling.c										\
 		$(SRC_D)/networking/container.c										\
@@ -147,6 +149,28 @@ server_test: $(NAME)
 
 client_test: TEST='main_client_t'
 client_test: $(NAME)
+	@$(ECHO) "Compiling $(TEST).c..." 2>$(CC_LOG) || touch $(CC_ERROR)
+	@$(CC) $(CC_FLAGS_TESTS) -I$(INC_D) -o $(TEST) tests/$(TEST).c $(NAME)
+	@if test -e $(CC_ERROR); then                                           \
+        $(ECHO) "$(ERROR_STRING)\n" && $(CAT) $(CC_LOG);					\
+    elif test -s $(CC_LOG); then                                            \
+        $(ECHO) "$(WARN_STRING)\n" && $(CAT) $(CC_LOG);                     \
+    else                                                                    \
+        $(ECHO) "$(OK_STRING)\n";                                           \
+    fi
+	@$(ECHO) "Running $(TEST)...\n"
+	@time $(DBG) ./$(TEST) && $(RM) -f $(TEST) && $(RM) -rf $(TEST).dSYM 2>$(CC_LOG) || touch $(CC_ERROR)
+	@if test -e $(CC_ERROR); then                                           \
+		$(ECHO) "Completed $(TEST): $(ERROR_STRING)\n" && $(CAT) $(CC_LOG);		\
+    elif test -s $(CC_LOG); then											\
+		$(ECHO) "Completed $(TEST): $(WARN_STRING)\n" && $(CAT) $(CC_LOG);		\
+    else                                                                    \
+		$(ECHO) "Completed $(TEST): $(OK_STRING)\n";								\
+    fi
+	@$(RM) -f $(CC_LOG) $(CC_ERROR)
+
+framing_test: TEST='main_framing_t'
+framing_test: $(NAME)
 	@$(ECHO) "Compiling $(TEST).c..." 2>$(CC_LOG) || touch $(CC_ERROR)
 	@$(CC) $(CC_FLAGS_TESTS) -I$(INC_D) -o $(TEST) tests/$(TEST).c $(NAME)
 	@if test -e $(CC_ERROR); then                                           \

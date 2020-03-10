@@ -6,11 +6,26 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/01 20:21:25 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/09 17:18:01 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 16:05:23 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <signal.h>
 
-#include "networking/networking.h"
+#include <stdlib.h>
+
+#include "common/sleep.h"
+#include "common/threading.h"
+#include "networking/constants.h"
+#include "networking/queue.h"
+#include "networking/container.h"
+#include "networking/client.h"
 
 // NEEDED:
 // f: client_request_access (no thread)

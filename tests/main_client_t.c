@@ -6,12 +6,18 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/04 19:18:59 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/09 17:29:07 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 19:49:29 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <unistd.h>
+
 #include "limits.h"
-#include "networking/networking.h"
+#include "networking/constants.h"
+#include "networking/network.h"
+#include "networking/framing.h"
+#include "networking/container.h"
+#include "networking/client.h"
 #include "ito_internal.h"
 
 typedef struct			s_data
@@ -25,11 +31,22 @@ typedef struct			s_data
 	long long			sfatty;
 }						t_data;
 
+void					join_pool(t_client *client, struct addrinfo *info, int descriptor)
+{
+	t_container		*container;
+
+	container = container_create(512, info, descriptor, 0);
+
+	frame_insert(container, JOIN);
+	dump_container(container);
+	queue_safe_add(client->queue, (void *)container);
+}
+
 void					bombard(t_client *client, struct addrinfo *info, int descriptor)
 {
 	t_data				s_send;
-	t_package			package;
-	t_container		*container;
+	t_package			*package;
+	t_container			*container;
 
 	container = malloc(sizeof(t_container));
 
@@ -42,14 +59,16 @@ void					bombard(t_client *client, struct addrinfo *info, int descriptor)
 	s_send.sfatty = LLONG_MAX;
 
 	const char *formatstr = "%f%f%s%i%i%llu%lli";
-	ito_compile_package(&package, formatstr, s_send.x, s_send.y, s_send.name, s_send.id, s_send.flags, s_send.fatty, s_send.sfatty);
+	package = ito_compile_package(formatstr, s_send.x, s_send.y, s_send.name, s_send.id, s_send.flags, s_send.fatty, s_send.sfatty);
+	//dump_package(package);
 
 	container = container_create(512, info, descriptor, 0);
-	container->vector->mem = package.mem;
-	container->vector->index = package.index;
-	frame_insert(container, JOIN);
-	printf("client: %c : %c : %c : %c\n",container->vector->mem[0],container->vector->mem[1],container->vector->mem[2], container->vector->mem[3]);
+	container_insert_package(package, container);
+	frame_insert(container, PACKAGE);
+	//dump_container(container);
+	//printf("client: %c : %c : %c : %c\n",container->vector->mem[0],container->vector->mem[1],container->vector->mem[2], container->vector->mem[3]);
 	queue_safe_add(client->queue, (void *)container);
+	free(package);
 }
 
 int						main(void)
@@ -62,6 +81,7 @@ int						main(void)
 	{
 		struct addrinfo *info = conv_to_addrinfo(strdup("127.0.0.1"), NT_PORT);
 		int descriptor = open_connection_sync(info);
+		join_pool(client, info, descriptor);
 		if (info && descriptor >= 0)
 		{
 			for (int i = 0; i < count; i++)
@@ -69,13 +89,13 @@ int						main(void)
 				bombard(client, info, descriptor);
 				usleep(400);
 			}
-			close(descriptor);
 		}
 		else
 		{
 			handle_error("main_client_t Main", "couldn't connect to client!", NULL, ERR_CRIT);
 			return(-1);
 		}
+		sleep(1);
 		LOG_DEBUG("%s\n", "stopping client!");
 		client->state = NT_STATE_STOP;
 		sleep(1);
