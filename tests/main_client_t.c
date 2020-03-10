@@ -66,7 +66,6 @@ int						main(void)
 		{
 			for (int i = 0; i < count; i++)
 			{
-				printf("hello \n");
 				bombard(client, info, descriptor);
 				usleep(400);
 			}

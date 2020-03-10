@@ -97,13 +97,14 @@ static int		process_request(t_conscript *conscript, t_network *network)
 			"processing request", conscript->socketfd);
 	if (!recv_frame_header(conscript->socketfd, frame_buffer))
 	{
-		handle_error("Server : process request", "couldn't read frame heaeder!",
+		handle_error("Server : process_request", "couldn't read frame heaeder!",
 				NULL,  ERR_WARN);
+		close(conscript->socketfd);
 		return (-1);
 	}
 	if (frame_validate_signature(frame_buffer) <= 0)
 	{
-		handle_error("Server : process request", "frame has invalid signature!",
+		handle_error("Server : process_request", "frame has invalid signature!",
 				NULL,  ERR_WARN);
 		close(conscript->socketfd);
 		return (-1);
