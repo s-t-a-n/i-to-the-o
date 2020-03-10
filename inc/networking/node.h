@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   conscript.h                                        :+:    :+:            */
+/*   node.h                                             :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/08 22:28:53 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/10 14:15:10 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 21:36:46 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CONSCRIPT_H
-# define CONSCRIPT_H
+#ifndef node_H
+# define node_H
 
 # include <pthread.h>
 # include <sys/types.h>
@@ -20,7 +20,7 @@
 
 # include "networking/container.h"
 
-typedef struct				s_conscript
+typedef struct				s_node
 {
 	struct addrinfo			addrinfo;
 	struct sockaddr_in		sockaddr_in;
@@ -30,8 +30,8 @@ typedef struct				s_conscript
 	int						socketfd;
 	pthread_mutex_t			lock;
 	t_container				*container_in;
-}							t_conscript;
+}							t_node;
 
-t_conscript					*conscript_initiate(struct sockaddr_in, socklen_t socklen);
-void						conscript_discharge(t_conscript *conscript);
+t_node						*node_initiate(struct sockaddr_in, socklen_t socklen);
+void						node_discharge(t_node *node);
 #endif

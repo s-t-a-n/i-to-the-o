@@ -1,37 +1,37 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   conscript.c                                        :+:    :+:            */
+/*   node.c                                             :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/06 18:38:15 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/09 17:12:01 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 21:36:54 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "networking/conscript.h"
+#include "networking/node.h"
 
-void			conscript_discharge(t_conscript *conscript)
+void			node_destroy(t_node *node)
 {
-	pthread_mutex_destroy(&conscript->lock);
-	free(conscript);
+	pthread_mutex_destroy(&node->lock);
+	free(node);
 }
 
-t_conscript		*conscript_initiate(struct sockaddr_in sockaddr_in, socklen_t socklen)
+t_node		*node_initiate(struct sockaddr_in sockaddr_in, socklen_t socklen)
 {
-	t_conscript *conscript;
+	t_node *node;
 
-	conscript = malloc(sizeof(t_conscript));
-	if (conscript)
+	node = malloc(sizeof(t_node));
+	if (node)
 	{
-		pthread_mutex_init(&conscript->lock, 0);
-		//conscript->addrinfo = (struct addrinfo)0;
-		conscript->sockaddr_in = sockaddr_in;
-		conscript->socklen = socklen;
-		conscript->ipv4_addr = NULL;
-		conscript->ipv6_addr = NULL;
-		conscript->socketfd = -1;
+		pthread_mutex_init(&node->lock, 0);
+		//node->addrinfo = (struct addrinfo)0;
+		node->sockaddr_in = sockaddr_in;
+		node->socklen = socklen;
+		node->ipv4_addr = NULL;
+		node->ipv6_addr = NULL;
+		node->socketfd = -1;
 	}
-	return(conscript);
+	return(node);
 }

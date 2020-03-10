@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/09 17:14:21 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/10 15:31:17 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 21:42:09 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ t_network	*network_initialise(void)
 	network = malloc(sizeof(t_network));
 	if (network)
 	{
-		network->pool = pool_initialise(POOL_RELAY_COUNT, POOL_MEMBR_COUNT);
+		network->pool = pool_initialise(POOL_SNODE_COUNT, POOL_NODE_COUNT);
 		network->server = server_initialise(network);
 	}
 	else

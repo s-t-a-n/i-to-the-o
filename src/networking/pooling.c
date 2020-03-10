@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/03 22:00:15 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/10 16:19:45 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 21:41:37 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 #include <sys/socket.h>
@@ -20,135 +20,135 @@
 
 #include "networking/constants.h"
 #include "networking/pooling.h"
-#include "networking/conscript.h"
+#include "networking/node.h"
 #include "networking/network.h"
 
 void	pool_destroy(t_pool *pool)
 {
-	free(pool->relays);
-	free(pool->members);
+	free(pool->supernodes);
+	free(pool->nodes);
 	free(pool);
 }
 
-t_conscript		*is_client_a_member(t_pool *pool, t_conscript *conscript, char *ipv4_addr_str, char *ipv6_addr_str)
+t_node		*is_client_a_node(t_pool *pool, t_node *node, char *ipv4_addr_str, char *ipv6_addr_str)
 {
 	// probably want to do authentication here
 	// for now, ip checking is considered 'authentication'
 
-	for (int i = 0; i < pool->membercount; i++)
+	for (int i = 0; i < pool->nodecount; i++)
 	{
-		if (pool->members[i])
+		if (pool->nodes[i])
 		{
 			// lock must be initialized
-			if (pthread_mutex_trylock(&pool->members[i]->lock) == 0)
+			if (pthread_mutex_trylock(&pool->nodes[i]->lock) == 0)
 			{
 				LOG_DEBUG("Thread %d : %s : %s : %s : %s : %s\n", (int)pthread_self(), "is_client_known", "incoming client has ip4", ipv4_addr_str, ", ipv6: ", ipv6_addr_str);
 
-				if (strncmp(pool->members[i]->ipv4_addr, ipv4_addr_str, INET_ADDRSTRLEN) == 0)
-					return(pool->members[i]);
-				else if (strncmp(pool->members[i]->ipv6_addr, ipv6_addr_str, INET6_ADDRSTRLEN) == 0)
-					return(pool->members[i]);
+				if (strncmp(pool->nodes[i]->ipv4_addr, ipv4_addr_str, INET_ADDRSTRLEN) == 0)
+					return(pool->nodes[i]);
+				else if (strncmp(pool->nodes[i]->ipv6_addr, ipv6_addr_str, INET6_ADDRSTRLEN) == 0)
+					return(pool->nodes[i]);
 			}
 			else
 			{
-				printf("no fun with lock  : %i\n", pthread_mutex_trylock(&pool->members[i]->lock));
+				printf("no fun with lock  : %i\n", pthread_mutex_trylock(&pool->nodes[i]->lock));
 			}
 		}
 	}
 	return(NULL);
-	conscript = NULL; //boilerplate
+	node = NULL; //boilerplate
 }
 
-t_conscript		*is_client_a_relay(t_pool *pool, t_conscript *conscript, char *ipv4_addr_str, char *ipv6_addr_str)
+t_node		*is_client_a_supernode(t_pool *pool, t_node *node, char *ipv4_addr_str, char *ipv6_addr_str)
 {
-	for (int i = 0; i < pool->relaycount; i++)
+	for (int i = 0; i < pool->supernodecount; i++)
 	{
-		if (pool->relays[i])
+		if (pool->supernodes[i])
 		{
 			// lock must be initialized
-			if (pthread_mutex_trylock(&pool->relays[i]->lock) == 0)
+			if (pthread_mutex_trylock(&pool->supernodes[i]->lock) == 0)
 			{
 				LOG_DEBUG("Thread %d : %s : %s : %s : %s : %s\n", (int)pthread_self(), "is_client_known", "incoming client has ip4", ipv4_addr_str, ", ipv6: ", ipv6_addr_str);
 
-				if (strncmp(pool->relays[i]->ipv4_addr, ipv4_addr_str, INET_ADDRSTRLEN) == 0)
-					return(pool->relays[i]);
-				else if (strncmp(pool->relays[i]->ipv6_addr, ipv6_addr_str, INET6_ADDRSTRLEN) == 0)
-					return(pool->relays[i]);
+				if (strncmp(pool->supernodes[i]->ipv4_addr, ipv4_addr_str, INET_ADDRSTRLEN) == 0)
+					return(pool->supernodes[i]);
+				else if (strncmp(pool->supernodes[i]->ipv6_addr, ipv6_addr_str, INET6_ADDRSTRLEN) == 0)
+					return(pool->supernodes[i]);
 			}
 			else
 			{
-				printf("no fun with lock  : %i\n", pthread_mutex_trylock(&pool->relays[i]->lock));
+				printf("no fun with lock  : %i\n", pthread_mutex_trylock(&pool->supernodes[i]->lock));
 			}
 		}
 	}
 	return(NULL);
-	conscript = NULL; //boilerplate
+	node = NULL; //boilerplate
 }
 
-t_conscript		*is_client_in_pool(t_pool *pool, t_conscript *conscript)
+t_node		*is_client_in_pool(t_pool *pool, t_node *node)
 {
-	t_conscript *known_conscript;
-	char *ipv4_addr_str = get_ipv4_str(&conscript->sockaddr_in);
-	char *ipv6_addr_str = get_ipv6_str(&conscript->sockaddr_in);
+	t_node *known_node;
+	char *ipv4_addr_str = get_ipv4_str(&node->sockaddr_in);
+	char *ipv6_addr_str = get_ipv6_str(&node->sockaddr_in);
 
-	if ((known_conscript = is_client_a_member(pool, conscript, ipv4_addr_str, ipv6_addr_str)))
-		return (known_conscript);
-	else if ((known_conscript = is_client_a_relay(pool, conscript, ipv4_addr_str, ipv6_addr_str)))
-		return (known_conscript);
+	if ((known_node = is_client_a_node(pool, node, ipv4_addr_str, ipv6_addr_str)))
+		return (known_node);
+	else if ((known_node = is_client_a_supernode(pool, node, ipv4_addr_str, ipv6_addr_str)))
+		return (known_node);
 	else
 		return (NULL);
 }
 
-int		pool_add_member(t_pool *pool, t_conscript *conscript)
+int		pool_add_node(t_pool *pool, t_node *node)
 {
-	LOG_DEBUG("Thread %d : %s : %s\n", (int)pthread_self(), "pool_add_member", "adding member to pool!");
-	if (pool->membercount < POOL_MEMBR_COUNT)
+	LOG_DEBUG("Thread %d : %s : %s\n", (int)pthread_self(), "pool_add_node", "adding node to pool!");
+	if (pool->nodecount < POOL_NODE_COUNT)
 	{
-		conscript->ipv4_addr = get_ipv4_str(&conscript->sockaddr_in);
-		conscript->ipv6_addr = get_ipv6_str(&conscript->sockaddr_in);
-		conscript->container_in = container_create(CONTAINER_MEMCAP_DEF, &conscript->addrinfo, conscript->socketfd, 0);
-		pool->members[pool->membercount] = conscript;
-		pthread_mutex_init(&conscript->lock, 0);
-		pool->membercount++;
+		node->ipv4_addr = get_ipv4_str(&node->sockaddr_in);
+		node->ipv6_addr = get_ipv6_str(&node->sockaddr_in);
+		node->container_in = container_create(CONTAINER_MEMCAP_DEF, &node->addrinfo, node->socketfd, 0);
+		pool->nodes[pool->nodecount] = node;
+		pthread_mutex_init(&node->lock, 0);
+		pool->nodecount++;
 		return (1);
 	}
 	else
 	{
-		LOG_DEBUG("Thread %d : %s : %s\n", (int)pthread_self(), "pool_add_member", "Pool is full!");
-		conscript_discharge(conscript);
+		LOG_DEBUG("Thread %d : %s : %s\n", (int)pthread_self(), "pool_add_node", "Pool is full!");
+		node_discharge(node);
 		return (-1);
 	}
 	return (-1);
 }
 
-int		pool_add_relay(t_pool *pool, t_conscript *conscript)
+int		pool_add_supernode(t_pool *pool, t_node *node)
 {
-	LOG_DEBUG("Thread %d : %s : %s\n", (int)pthread_self(), "pool_add_relay", "adding relay to pool!");
-	if (pool->relaycount < POOL_RELAY_COUNT)
+	LOG_DEBUG("Thread %d : %s : %s\n", (int)pthread_self(), "pool_add_supernode", "adding supernode to pool!");
+	if (pool->supernodecount < POOL_SNODE_COUNT)
 	{
-		int index = (pool->relaycount == 0) ? 0 : pool->relaycount - 1;
-		pool->relays[index] = conscript;
-		pool->relaycount++;
+		int index = (pool->supernodecount == 0) ? 0 : pool->supernodecount - 1;
+		pool->supernodes[index] = node;
+		pool->supernodecount++;
 		return (1);
 	}
 	else
 	{
-		LOG_DEBUG("Thread %d : %s : %s\n", (int)pthread_self(), "pool_add_relay", "Pool is full!");
-		conscript_discharge(conscript);
+		LOG_DEBUG("Thread %d : %s : %s\n", (int)pthread_self(), "pool_add_supernode", "Pool is full!");
+		node_discharge(node);
 		return (-1);
 	}
 	return (-1);
 }
 
-t_pool	*pool_initialise(int relaycount, int membercount)
+t_pool	*pool_initialise(int supernodecount, int nodecount)
 {
 	t_pool	*pool;
 
 	pool = malloc(sizeof(t_pool));
 	if (pool)
 	{
-		pool->relays = malloc(sizeof(t_conscript) * relaycount);
-		if (!pool->relays)
+		pool->supernodes = malloc(sizeof(t_node) * supernodecount);
+		if (!pool->supernodes)
 		{
 			free(pool);
 			handle_error("pool_initiate", strerror(errno), NULL, ERR_CRIT);
@@ -156,26 +156,26 @@ t_pool	*pool_initialise(int relaycount, int membercount)
 		}
 		else
 		{
-			for (int i = 0; i < relaycount; i++)
+			for (int i = 0; i < supernodecount; i++)
 			{
-				pool->relays[i] = NULL;
+				pool->supernodes[i] = NULL;
 			}
 		}
-		pool->members = malloc(sizeof(t_conscript) * membercount);
-		if (!pool->members)
+		pool->nodes = malloc(sizeof(t_node) * nodecount);
+		if (!pool->nodes)
 		{
 			free(pool);
-			free(pool->relays);
+			free(pool->supernodes);
 			handle_error("pool initiate", strerror(errno), NULL, ERR_CRIT);
 			return (NULL);
 		}
 		else
 		{
-			for (int i = 0; i < membercount; i++)
-				pool->members[i] = NULL;
+			for (int i = 0; i < nodecount; i++)
+				pool->nodes[i] = NULL;
 		}
-		pool->membercount = 0;
-		pool->relaycount = 0;
+		pool->nodecount = 0;
+		pool->supernodecount = 0;
 	}
 	return(pool);
 }

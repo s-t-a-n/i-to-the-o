@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/10 14:41:48 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/10 17:40:08 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 21:41:07 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,8 +60,8 @@
 /*
 ** pooling
 */
-# define POOL_RELAY_COUNT				5
-# define POOL_MEMBR_COUNT				5
+# define POOL_SNODE_COUNT				5
+# define POOL_NODE_COUNT				5
 
 /*
 ** container

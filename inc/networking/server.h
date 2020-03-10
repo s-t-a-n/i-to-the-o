@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/10 14:22:34 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/10 16:03:30 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 21:40:02 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 #include "networking/queue.h"
 
 typedef struct				s_network t_network;
-typedef struct				s_conscript t_conscript;
+typedef struct				s_node t_node;
 
 typedef struct				s_server
 {
@@ -42,9 +42,9 @@ void						server_shutdown(t_server *server);
 /*
 ** server_processing.c
 */
-int							process_package_rq(t_conscript *conscript,
+int							process_package_rq(t_node *node,
 								unsigned char *frameheader, t_network *network);
-int							process_join_rq(t_conscript *conscript,
+int							process_join_rq(t_node *node,
 								unsigned char *frameheader, t_network *network);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/01 20:21:31 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/10 15:59:32 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/10 21:38:04 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 #include <sys/socket.h>
@@ -29,7 +29,7 @@
 #include "networking/constants.h"
 #include "networking/pooling.h"
 #include "networking/framing.h"
-#include "networking/conscript.h"
+#include "networking/node.h"
 
 static unsigned char	*recv_frame_header(int descriptor, unsigned char *frame_buffer)
 {
@@ -68,25 +68,25 @@ static unsigned char	*recv_frame_header(int descriptor, unsigned char *frame_buf
 	return (frame_buffer);
 }
 
-static int		process_request(t_conscript *conscript, t_network *network)
+static int		process_request(t_node *node, t_network *network)
 {
 	unsigned char			frame_buffer[NT_RECV_BUFSIZE];
 	t_request_type			reqtype;
 
 	LOG_DEBUG("Server : Thread %d : %s : %i\n", (int)pthread_self(),
-			"processing request", conscript->socketfd);
-	if (!recv_frame_header(conscript->socketfd, frame_buffer))
+			"processing request", node->socketfd);
+	if (!recv_frame_header(node->socketfd, frame_buffer))
 	{
 		handle_error("Server : process_request", "couldn't read frame heaeder!",
 				NULL,  ERR_WARN);
-		close(conscript->socketfd);
+		close(node->socketfd);
 		return (-1);
 	}
 	if (frame_validate_signature(frame_buffer) <= 0)
 	{
 		handle_error("Server : process_request", "frame has invalid signature!",
 				NULL,  ERR_WARN);
-		close(conscript->socketfd);
+		close(node->socketfd);
 		return (-1);
 	}
 
@@ -95,9 +95,9 @@ static int		process_request(t_conscript *conscript, t_network *network)
 	switch (reqtype)
 	{
 		case JOIN:
-			return(process_join_rq(conscript, frame_buffer, network));
+			return(process_join_rq(node, frame_buffer, network));
 		case PACKAGE:
-			return(process_package_rq(conscript, frame_buffer, network));
+			return(process_package_rq(node, frame_buffer, network));
 		case ILLEGAL:
 			handle_error("Server : process request", "frame has illegal request type!", NULL,  ERR_WARN);
 			return (-1);
@@ -112,19 +112,18 @@ static void		*worker_requests(void *arg)
 {
 	t_network	*network = (t_network *)arg;
 	t_server	*server = network->server;
-	t_conscript	*conscript;
+	t_node	*node;
 
 	while (server->state == NT_STATE_READY)
 	{
-		conscript = (t_conscript *)queue_safe_get(server->queue);
-		if (conscript)
+		node = (t_node *)queue_safe_get(server->queue);
+		if (node)
 		{
-			process_request(conscript, network);
+			process_request(node, network);
 			// BIG FAT MEMORY LEAK HERE -> WHEN TO FREE?
-			free(conscript);
+			free(node);
 		}
 	}
-
 	return (arg);
 }
 
@@ -134,7 +133,7 @@ static void		*worker_incoming(void *arg)
 {
 	t_network	*network = (t_network *)arg;
 	t_server	*server = network->server;
-	t_conscript *conscript;
+	t_node *node;
 
 	if (listen(server->socket, NT_QUEUE_BACKLOG) != 0)
 	{
@@ -147,30 +146,30 @@ static void		*worker_incoming(void *arg)
 		LOG_VERBOSE("Thread : %d, %s\n", (int)pthread_self(), "server is accepting requests!");
 		while (server->state == NT_STATE_READY)
 		{
-			conscript = malloc(sizeof(t_conscript));
-			if (conscript)
+			node = malloc(sizeof(t_node));
+			if (node)
 			{
-				conscript->socklen = sizeof(struct sockaddr_in);
-				conscript->socketfd = accept(server->socket, (struct sockaddr *)&conscript->sockaddr_in, &conscript->socklen);
-				if (conscript->socketfd < 0 && errno != ECONNABORTED)
+				node->socklen = sizeof(struct sockaddr_in);
+				node->socketfd = accept(server->socket, (struct sockaddr *)&node->sockaddr_in, &node->socklen);
+				if (node->socketfd < 0 && errno != ECONNABORTED)
 				{
 					handle_error("worker_incoming", "problem with incoming request",
 							strerror(errno), ERR_WARN);
-					free(conscript);
+					free(node);
 				}
 				else
 				{
 					int error = 0;
-					error += setsockopt(conscript->socketfd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
-					error += setsockopt(conscript->socketfd, SOL_SOCKET, SO_KEEPALIVE, &(int){1}, sizeof(int));
+					error += setsockopt(node->socketfd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
+					error += setsockopt(node->socketfd, SOL_SOCKET, SO_KEEPALIVE, &(int){1}, sizeof(int));
 					if (error > 0)
 					{
 						handle_error("worker_incoming", "couldnt set socket opts:", strerror(errno), ERR_WARN);
-						close(conscript->socketfd);
-						free(conscript);
+						close(node->socketfd);
+						free(node);
 					}
 					else
-						queue_safe_add(server->queue, (void *)conscript);
+						queue_safe_add(server->queue, (void *)node);
 				}
 			}
 			else
