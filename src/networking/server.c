@@ -195,7 +195,7 @@ void			server_shutdown(t_server *server)
 					strerror(errno), ERR_CRIT);
 		queue_pop(server->queue);
 	}
-	queue_drop(server->queue);
+	queue_drop(server->queue, free);
 	spin_down_threads(server->workers_count, server->workers);
 	spin_down_threads(1, &server->master);
 	free(server);
@@ -223,7 +223,7 @@ t_server		*server_initialise(t_network *network)
 			handle_error("initialise_server", "couldnt open socket!",
 					strerror(errno), ERR_CRIT);
 			free(server->workers);
-			queue_drop(server->queue);
+			queue_drop(server->queue, free);
 			free(server);
 			return(NULL);
 		}
@@ -231,7 +231,7 @@ t_server		*server_initialise(t_network *network)
 		{
 			handle_error("initialise_server", "couldnt set socket options!",
 					strerror(errno), ERR_CRIT);
-			queue_drop(server->queue);
+			queue_drop(server->queue, free);
 			close(server->socket);
 			free(server->workers);
 			free(server);
@@ -250,7 +250,7 @@ t_server		*server_initialise(t_network *network)
 			handle_error("initialise_server", "couldn't bind to socket!",
 					strerror(errno), ERR_CRIT);
 			close(server->socket);
-			queue_drop(server->queue);
+			queue_drop(server->queue, free);
 			free(server->workers);
 			free(server);
 			return(NULL);
@@ -262,7 +262,7 @@ t_server		*server_initialise(t_network *network)
 		if (!server->workers)
 		{
 			handle_error("initialise_server", strerror(errno), NULL, ERR_CRIT);
-			queue_drop(server->queue);
+			queue_drop(server->queue, free);
 			free(server);
 			return(NULL);
 		}
@@ -271,7 +271,7 @@ t_server		*server_initialise(t_network *network)
 		{
 			handle_error("initialise_server", strerror(errno), NULL, ERR_CRIT);
 			spin_down_threads(server->workers_count, server->workers);
-			queue_drop(server->queue);
+			queue_drop(server->queue, free);
 			free(server);
 			return(NULL);
 		}

@@ -16,11 +16,11 @@
 ** queue was inspired by (if not just ripped off from) https://github.com/Guppster/MultiThreaded-Server
 */
 
-void		queue_drop(t_queue *queue)
+void		queue_drop(t_queue *queue, void (*stubfree)())
 {
 	while (queue->size > 0)
 	{
-		free(queue_peek(queue));
+		stubfree(queue_peek(queue));
 		queue_pop(queue);
 	}
 	free(queue->elements);

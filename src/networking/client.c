@@ -97,7 +97,7 @@ void			client_shutdown(t_client *client)
 		free(container);
 		queue_pop(client->queue);
 	}
-	queue_drop(client->queue);
+	queue_drop(client->queue, free);
 	free(client->workers);
 	free(client);
 }
@@ -124,7 +124,7 @@ t_client		*client_initialise(void)
 		if (!client->workers)
 		{
 			handle_error("initialise_client", strerror(errno), NULL, ERR_CRIT);
-			queue_drop(client->queue);
+			queue_drop(client->queue, free);
 			free(client);
 			return (NULL);
 		}

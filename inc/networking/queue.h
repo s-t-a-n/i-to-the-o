@@ -30,7 +30,7 @@ typedef struct				s_queue
 	void					**elements;
 }							t_queue;
 
-void						queue_drop(t_queue *queue);
+void						queue_drop(t_queue *queue, void (*stubfree)());
 void						queue_pop(t_queue *queue);
 void						queue_push(t_queue *queue, void *element);
 void						*queue_peek(t_queue *queue);

@@ -81,6 +81,10 @@ int						main(void)
 	if (client)
 	{
 		client_send_request(client, JOIN, strdup("127.0.0.1"));
+		client_send_request(client, JOIN, strdup("127.0.0.1"));
+		client_send_request(client, JOIN, strdup("127.0.0.1"));
+		client_send_request(client, JOIN, strdup("127.0.0.1"));
+		client_send_request(client, JOIN, strdup("127.0.0.1"));
 		//struct addrinfo *info = conv_to_addrinfo(strdup("127.0.0.1"), NT_PORT);
 		//int descriptor = open_connection_sync(info);
 		//join_pool(client, info, descriptor);
