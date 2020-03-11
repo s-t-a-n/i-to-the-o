@@ -31,6 +31,9 @@
 #include "networking/framing.h"
 #include "networking/pooling.h"
 
+
+/* redo the below in symmetry with client & ev_type */
+
 static int		listen_for_further_packages(t_node *node, t_network *network)
 {
 	unsigned char		buffer[NT_RECV_BUFSIZE];
@@ -93,7 +96,6 @@ int		process_package_rq(t_node *node, unsigned char *frameheader, t_network *net
 		if (!mvector1_pushback(&container->vector, frameheader, FRAME_HEADER_LEN))
 		{
 			handle_error("process_package_rq", strerror(errno), NULL, ERR_CRIT);
-			free(frameheader);
 			return(-1);
 		}
 
@@ -123,5 +125,5 @@ int		process_join_rq(t_node *node, unsigned char *frameheader, t_network *networ
 	}
 	else
 		return (-1);
-	frameheader = NULL;
+	frameheader = NULL; //stub
 }
