@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/01 20:21:31 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/10 23:26:02 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/11 21:07:54 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 #include <sys/socket.h>
@@ -30,6 +30,8 @@
 #include "networking/pooling.h"
 #include "networking/framing.h"
 #include "networking/requests.h"
+#include "networking/processing.h"
+#include "networking/connection.h"
 #include "networking/node.h"
 
 static unsigned char	*recv_frame_header(int descriptor, unsigned char *frame_buffer)
@@ -69,61 +71,29 @@ static unsigned char	*recv_frame_header(int descriptor, unsigned char *frame_buf
 	return (frame_buffer);
 }
 
-static int		process_request(t_node *node, t_network *network)
+static void				*worker_requests(void *arg)
 {
-	unsigned char			frame_buffer[NT_RECV_BUFSIZE];
-	t_request_type			reqtype;
+	t_request_type		request_type;
+	t_network			*network;
+	t_container			*container;
 
-	LOG_DEBUG("Server : Thread %d : %s : %i\n", (int)pthread_self(),
-			"processing request", node->socketfd);
-	if (!recv_frame_header(node->socketfd, frame_buffer))
+	network = (t_network *)arg;
+	while (network->server->state == NT_STATE_READY)
 	{
-		handle_error("Server : process_request", "couldn't read frame heaeder!",
-				NULL,  ERR_WARN);
-		close(node->socketfd);
-		return (-1);
-	}
-	if (frame_validate_signature(frame_buffer) <= 0)
-	{
-		handle_error("Server : process_request", "frame has invalid signature!",
-				NULL,  ERR_WARN);
-		close(node->socketfd);
-		return (-1);
-	}
-
-	reqtype = frame_read_reqtype(frame_buffer);
-
-	switch (reqtype)
-	{
-		case JOIN:
-			return(process_join_rq(node, frame_buffer, network));
-		case PACKAGE:
-			return(process_package_rq(node, frame_buffer, network));
-		case ILLEGAL:
-			handle_error("Server : process request", "frame has illegal request type!", NULL,  ERR_WARN);
-			return (-1);
-		default:
-			handle_error("Server : process request", "frame has invalid request type!", NULL,  ERR_WARN);
-			return (-1);
-	}
-	return (1);
-}
-
-static void		*worker_requests(void *arg)
-{
-	t_network	*network = (t_network *)arg;
-	t_server	*server = network->server;
-	t_node	*node;
-
-	while (server->state == NT_STATE_READY)
-	{
-		node = (t_node *)queue_safe_get(server->queue);
-		if (node)
+		container = (t_container *)queue_safe_get(network->server->queue);
+		if (recv_frame_header(client->socketfd, container))
 		{
-			process_request(node, network);
-			// BIG FAT MEMORY LEAK HERE -> WHEN TO FREE?
-			free(node);
+			if (frame_validate_signature(container))
+			{
+				request_type = frame_read_request_type(container);
+				server_process_request(network, container, request_type);
+				// free container here?
+			}
+			else
+				handle_error("Server : process_request", "frame has invalid signature!", NULL,  ERR_WARN);
 		}
+		else
+			handle_error("Server : process_request", "couldn't read frame heaeder!", NULL,  ERR_WARN);
 	}
 	return (arg);
 }
@@ -132,9 +102,9 @@ static void		*worker_requests(void *arg)
 // store socketfd -> send it to pool
 static void		*worker_incoming(void *arg)
 {
-	t_network	*network = (t_network *)arg;
-	t_server	*server = network->server;
-	t_node *node;
+	t_network		*network = (t_network *)arg;
+	t_server		*server = network->server;
+	t_connection	*connection;
 
 	if (listen(server->socket, NT_QUEUE_BACKLOG) != 0)
 	{
@@ -147,30 +117,30 @@ static void		*worker_incoming(void *arg)
 		LOG_VERBOSE("Thread : %d, %s\n", (int)pthread_self(), "server is accepting requests!");
 		while (server->state == NT_STATE_READY)
 		{
-			node = malloc(sizeof(t_node));
-			if (node)
+			connection = connection_initialise();
+			if (connection)
 			{
-				node->socklen = sizeof(struct sockaddr_in);
-				node->socketfd = accept(server->socket, (struct sockaddr *)&node->sockaddr_in, &node->socklen);
-				if (node->socketfd < 0 && errno != ECONNABORTED)
+				connection->socklen = sizeof(struct sockaddr_in);
+				connection->socketfd = accept(server->socket, (struct sockaddr *)&connection->sockaddr_in, &connection->socklen);
+				if (client->socketfd < 0 && errno != ECONNABORTED)
 				{
 					handle_error("worker_incoming", "problem with incoming request",
 							strerror(errno), ERR_WARN);
-					free(node);
+					connection_destroy(connection);
 				}
 				else
 				{
 					int error = 0;
-					error += setsockopt(node->socketfd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
-					error += setsockopt(node->socketfd, SOL_SOCKET, SO_KEEPALIVE, &(int){1}, sizeof(int));
+					error += setsockopt(connection->socketfd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
+					error += setsockopt(connection->socketfd, SOL_SOCKET, SO_KEEPALIVE, &(int){1}, sizeof(int));
 					if (error > 0)
 					{
 						handle_error("worker_incoming", "couldnt set socket opts:", strerror(errno), ERR_WARN);
-						close(node->socketfd);
-						free(node);
+						close(connection->socketfd);
+						connection_destroy(connection);
 					}
 					else
-						queue_safe_add(server->queue, (void *)node);
+						queue_safe_add(server->queue, (void *)connection);
 				}
 			}
 			else

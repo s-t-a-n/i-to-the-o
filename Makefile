@@ -17,7 +17,7 @@ SRC =	$(SRC_D)/api.c														\
 		$(SRC_D)/networking/common.c										\
 		$(SRC_D)/networking/client.c										\
 		$(SRC_D)/networking/server.c										\
-		$(SRC_D)/networking/server_processing.c								\
+		$(SRC_D)/networking/processing.c									\
 		$(SRC_D)/networking/queue.c											\
 		$(SRC_D)/networking/pooling.c										\
 		$(SRC_D)/networking/container.c										\

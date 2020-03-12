@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/02/25 19:12:27 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/10 20:06:50 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/11 20:47:46 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@
 # endif
 
 #define LOG_DEBUG(fmt, ...) \
-            do { if (DEBUG) { fprintf(stdout, "\e[32mDebug:\e[39m -> "); fprintf(stdout, fmt, __VA_ARGS__); } } while (0)
+            do { if (DEBUG) { fprintf(stdout, "\e[32mDebug:\e[39m T{%lu}-> ", pthread_self()); fprintf(stdout, fmt, __VA_ARGS__); } } while (0)
 
 #define LOG_VERBOSE(fmt, ...) \
             do { if (VERBOSE) { fprintf(stdout, "\e[32mInfo:\e[39m -> "); fprintf(stdout, fmt, __VA_ARGS__); } } while (0)

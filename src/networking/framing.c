@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/03/05 19:23:07 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/03/10 23:23:44 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/03/11 19:54:52 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 */
 
 // this needs some more love
-t_request_type	frame_read_reqtype(unsigned char *frameheader)
+t_request_type	frame_read_request_type(unsigned char *frameheader)
 {
 	t_char_as_uint32	chint;
 	
