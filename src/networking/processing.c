@@ -77,13 +77,12 @@ static int		process_packages(t_node *node)
 
 static int			process_request_package(t_container *container, t_network *network)
 {
-	t_container		*container;
 	t_node			*node_intable;
 
-	LOG_DEBUG("%s : %s : %i\n", "process_request_package", "handling request for package!", node->socketfd);
+	LOG_DEBUG("%s : %s : %i\n", "process_request_package", "handling request for package!", container->socketfd);
 
 	// if is_client_know returns non-null -> mutex  is locked!
-	node_intable = is_client_in_pool(network->pool, connection);
+	node_intable = is_client_in_pool(network->pool, container);
 	if (node_intable)
 	{
 		// listen to further packages here
@@ -107,21 +106,21 @@ static int			process_request_package(t_container *container, t_network *network)
 static int		process_request_join(t_container *container, t_network *network)
 {
 	LOG_DEBUG("%s : %s\n", "process_join_rq", "handling request to join!");
-
-	return (pool_add_node(network->pool, connection));
+	//create node here from container data
+	//return (pool_add_node(network->pool, connection));
 }
 
-void	server_process_request(t_network *network, t_connection *connection, t_request_type request_type)
+void	server_process_request(t_network *network, t_container *container, t_request_type request_type)
 {
 	switch (request_type)
 	{
 		case JOIN:
-			if(!process_request_join(connection, network))
+			if(!process_request_join(container, network))
 				handle_error("server_process_request", "request to join failed!",
 						NULL, ERR_WARN);
 			return ;
 		case PACKAGE:
-			if (!process_request_package(connection, network))
+			if (!process_request_package(container, network))
 				handle_error("server_process_request", "request to join failed!",
 						NULL, ERR_WARN);
 			return ;

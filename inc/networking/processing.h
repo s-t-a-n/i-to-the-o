@@ -13,7 +13,7 @@
 #ifndef PROCESSING_H
 # define PROCESSING_H
 
-void		server_process_request(t_network *network, t_node *node,
+void		server_process_request(t_network *network, t_container *container,
 				t_request_type request_type);
 
 #endif

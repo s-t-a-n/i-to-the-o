@@ -23,6 +23,8 @@ void		queue_drop(t_queue *queue, void (*stubfree)())
 		stubfree(queue_peek(queue));
 		queue_pop(queue);
 	}
+	pthread_mutex_destroy(&queue->lock);
+	pthread_cond_destroy(&queue->signal);
 	free(queue->elements);
 	free(queue);
 }

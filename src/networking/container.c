@@ -33,8 +33,7 @@ void			container_destroy(t_container *container)
 	free(container);
 }
 
-t_container		*container_create(size_t cap, struct addrinfo *addrinfo,
-					int socketfd, uint32_t flags)
+t_container		*container_create(size_t cap, int socketfd, uint32_t flags)
 {
 	t_container	*container;
 
@@ -45,7 +44,7 @@ t_container		*container_create(size_t cap, struct addrinfo *addrinfo,
 		if (container->vector)
 		{
 			container->vector->index = FRAME_HEADER_LEN;
-			container->addrinfo = addrinfo;
+			container->addrinfo = NULL;
 			container->socketfd = socketfd;
 			container->flags = flags;
 		}

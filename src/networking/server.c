@@ -31,20 +31,19 @@
 #include "networking/framing.h"
 #include "networking/requests.h"
 #include "networking/processing.h"
-#include "networking/connection.h"
 #include "networking/node.h"
 
-static unsigned char	*recv_frame_header(int descriptor, unsigned char *frame_buffer)
+static unsigned char	*recv_frameheader(int descriptor, unsigned char *frameheader)
 {
-	ssize_t					bytes_read;
-	ssize_t					bytes_read_actual;
-	int						read_miss_counter;
+	ssize_t		bytes_read;
+	ssize_t		bytes_read_actual;
+	int		read_miss_counter;
 
 	bytes_read = 0;
 	read_miss_counter = 0;
 	while(bytes_read < FRAME_HEADER_LEN)
 	{
-		bytes_read_actual = recv(descriptor, frame_buffer + bytes_read,
+		bytes_read_actual = recv(descriptor, frameheader + bytes_read,
 				FRAME_HEADER_LEN - bytes_read, 0);
 		if (bytes_read_actual < 0)
 		{
@@ -68,12 +67,13 @@ static unsigned char	*recv_frame_header(int descriptor, unsigned char *frame_buf
 		else
 			bytes_read += bytes_read_actual;
 	}
-	return (frame_buffer);
+	return (frameheader);
 }
 
 static void				*worker_requests(void *arg)
 {
-	t_request_type		request_type;
+	unsigned char			frameheader[FRAME_HEADER_LEN];
+	t_request_type			request_type;
 	t_network			*network;
 	t_container			*container;
 
@@ -81,13 +81,14 @@ static void				*worker_requests(void *arg)
 	while (network->server->state == NT_STATE_READY)
 	{
 		container = (t_container *)queue_safe_get(network->server->queue);
-		if (recv_frame_header(client->socketfd, container))
+		if (recv_frameheader(container->socketfd, frameheader))
 		{
-			if (frame_validate_signature(container))
+			if (frame_validate_signature(frameheader))
 			{
-				request_type = frame_read_request_type(container);
+				request_type = frame_read_request_type(frameheader);
+				mvector1_pushback(&container->vector, frameheader, FRAME_HEADER_LEN);
 				server_process_request(network, container, request_type);
-				// free container here?
+				// when to free container
 			}
 			else
 				handle_error("Server : process_request", "frame has invalid signature!", NULL,  ERR_WARN);
@@ -104,7 +105,7 @@ static void		*worker_incoming(void *arg)
 {
 	t_network		*network = (t_network *)arg;
 	t_server		*server = network->server;
-	t_connection	*connection;
+	t_container		*container;
 
 	if (listen(server->socket, NT_QUEUE_BACKLOG) != 0)
 	{
@@ -117,30 +118,30 @@ static void		*worker_incoming(void *arg)
 		LOG_VERBOSE("Thread : %d, %s\n", (int)pthread_self(), "server is accepting requests!");
 		while (server->state == NT_STATE_READY)
 		{
-			connection = connection_initialise();
-			if (connection)
+			container = container_create(CONTAINER_MEMCAP_DEF, -1, 0);
+			if (container)
 			{
-				connection->socklen = sizeof(struct sockaddr_in);
-				connection->socketfd = accept(server->socket, (struct sockaddr *)&connection->sockaddr_in, &connection->socklen);
-				if (client->socketfd < 0 && errno != ECONNABORTED)
+				container->socklen = sizeof(struct sockaddr_in);
+				container->socketfd = accept(server->socket, (struct sockaddr *)&container->sockaddr, &container->socklen);
+				if (container->socketfd < 0 && errno != ECONNABORTED)
 				{
 					handle_error("worker_incoming", "problem with incoming request",
 							strerror(errno), ERR_WARN);
-					connection_destroy(connection);
+					container_destroy(container);
 				}
 				else
 				{
 					int error = 0;
-					error += setsockopt(connection->socketfd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
-					error += setsockopt(connection->socketfd, SOL_SOCKET, SO_KEEPALIVE, &(int){1}, sizeof(int));
+					error += setsockopt(container->socketfd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
+					error += setsockopt(container->socketfd, SOL_SOCKET, SO_KEEPALIVE, &(int){1}, sizeof(int));
 					if (error > 0)
 					{
 						handle_error("worker_incoming", "couldnt set socket opts:", strerror(errno), ERR_WARN);
-						close(connection->socketfd);
-						connection_destroy(connection);
+						close(container->socketfd);
+						container_destroy(container);
 					}
 					else
-						queue_safe_add(server->queue, (void *)connection);
+						queue_safe_add(server->queue, (void *)container);
 				}
 			}
 			else
