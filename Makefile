@@ -6,26 +6,12 @@ OBJ_D = obj
 INC_D = inc
 
 # C source and header files
-SRC =	$(SRC_D)/api.c														\
-		$(SRC_D)/sleep.c													\
-		$(SRC_D)/error_and_logging.c										\
-		$(SRC_D)/threading.c												\
-		$(SRC_D)/memvector1.c												\
-		$(SRC_D)/packaging/package.c										\
-		$(SRC_D)/packaging/package_compilation.c							\
-		$(SRC_D)/packaging/package_decompilation.c							\
-		$(SRC_D)/networking/common.c										\
-		$(SRC_D)/networking/client.c										\
-		$(SRC_D)/networking/server.c										\
-		$(SRC_D)/networking/processing.c									\
-		$(SRC_D)/networking/queue.c											\
-		$(SRC_D)/networking/pooling.c										\
-		$(SRC_D)/networking/container.c										\
-		$(SRC_D)/networking/node.c											\
-		$(SRC_D)/networking/framing.c										\
-		$(SRC_D)/networking/nodestack.c										\
-		$(SRC_D)/networking/requests.c										\
-		$(SRC_D)/networking/network.c
+SRC =	$(SRC_D)/common/sleep.c												\
+		$(SRC_D)/common/error.c												\
+		$(SRC_D)/common/threading.c											\
+		$(SRC_D)/common/memvector1.c										\
+		$(SRC_D)/api/ito_compile_package.c									\
+		$(SRC_D)/api/ito_decompile_package.c
 
 
 INC =	$(INC_D)/ito.h														\
@@ -85,7 +71,8 @@ $(NAME): $(OBJ_D) $(OBJ) $(INC)
 
 $(OBJ_D):
 	@mkdir -p $(OBJ_D)
-	@mkdir -p $(OBJ_D)/packaging
+	@mkdir -p $(OBJ_D)/common
+	@mkdir -p $(OBJ_D)/api
 	@mkdir -p $(OBJ_D)/networking
 
 $(OBJ): $(OBJ_D)/%.o: $(SRC_D)/%.c

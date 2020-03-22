@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <stdlib.h>
 #include "common/memvector1.h"
 
 void				mvector1_destroy(t_mvector1 *vec)

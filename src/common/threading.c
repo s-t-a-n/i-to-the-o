@@ -10,9 +10,16 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <stdlib.h>
+#include <errno.h>
+#include <pthread.h>
+#include <signal.h>
+
+#include "common/error.h"
 #include "common/threading.h"
 
-void		spin_down_threads(int amount, pthread_t *threads)
+void		spin_down_threads(int amount,
+								pthread_t *threads)
 {
 	for (int i = 0; i < amount; i++)
 	{
@@ -21,7 +28,9 @@ void		spin_down_threads(int amount, pthread_t *threads)
 	free(threads);
 }
 
-pthread_t	spin_up_thread(pthread_attr_t *attr, void *(*main)(void *), void *arg)
+pthread_t	spin_up_thread(const pthread_attr_t *attr,
+							void *(*main)(void *),
+							void *arg)
 {
 	pthread_t	thread;
 
@@ -29,18 +38,21 @@ pthread_t	spin_up_thread(pthread_attr_t *attr, void *(*main)(void *), void *arg)
 	{
 		handle_error("spin_up_thread", "couldn't spin up thread",
 				strerror(errno), ERR_CRIT);
-		return (0);
+		return ((pthread_t)0);
 	}
 	return (thread);
 }
 
-pthread_t	*spin_up_threads(int amount, int maxamount, pthread_attr_t *attr,
-		void *(*main)(void *), void *arg)
+pthread_t	*spin_up_threads(int amount,
+								int cap,
+								const pthread_attr_t *attr,
+								void *(*main)(void *),
+								void *arg)
 {
 	pthread_t		thread;
 	pthread_t		*thread_tab;
 
-	thread_tab = malloc(sizeof(pthread_t) * maxamount);
+	thread_tab = malloc(sizeof(pthread_t) * cap);
 	if (thread_tab)
 	{
 		for (int i = 0; i < amount; i++)
@@ -48,8 +60,8 @@ pthread_t	*spin_up_threads(int amount, int maxamount, pthread_attr_t *attr,
 			thread = spin_up_thread(attr, main, arg);
 			if (!thread)
 			{
-				handle_error("spin_up_threads", "couldn't spin up threads", strerror(errno), ERR_CRIT);
 				spin_down_threads(i, thread_tab);
+				handle_error("spin_up_threads", "couldn't spin up threads", strerror(errno), ERR_CRIT);
 				return(NULL);
 			}
 			else

@@ -25,13 +25,7 @@
 /* estimated size of packages */
 # define PACKAGE_DEF_SIZE 512
 
-typedef struct				s_package
-{
-	t_mvector1				vector;
-	unsigned char			*mem;
-	size_t					mem_cap;
-	size_t					index;
-}							t_package;
+typedef struct				s_mvector1 t_package;
 
 /*
 ** package_compilation.c

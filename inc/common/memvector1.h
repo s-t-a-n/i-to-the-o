@@ -14,7 +14,6 @@
 # define MEMVECTOR1_H
 
 #include <sys/types.h>
-#include <stdlib.h>
 
 typedef struct				s_mvector1
 {

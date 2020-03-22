@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   error_and_logging.c                                :+:    :+:            */
+/*   error.c                                            :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
@@ -10,9 +10,14 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ito_internal.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include "common/error.h"
 
-void	handle_error(char *function, char *err_description, char *extra, int errcode)
+void	handle_error(const char *function,
+					const char *err_description,
+					const char *extra,
+					t_error errcode)
 {
 	if (errcode == ERR_CRIT)
 	{
@@ -23,7 +28,7 @@ void	handle_error(char *function, char *err_description, char *extra, int errcod
 				dprintf(STDERR, "\e[31mCritical error!\e[39m -> %s : %s\n",
 						function, err_description);
 #if EXIT_ON_CRIT_ERROR == 1
-			exit(ITO_ERROR);
+			exit(ERR_CRIT);
 #endif
 	}
 	else if (errcode == ERR_WARN)

@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   threads.h                                          :+:    :+:            */
+/*   threading.h                                        :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
@@ -13,15 +13,15 @@
 #ifndef THREADING_H
 # define THREADING_H
 
-# include <pthread.h>
-# include <signal.h>
-# include "ito_internal.h"
-
-void				spin_down_threads(int amount, pthread_t *threads);
-pthread_t			spin_up_thread(pthread_attr_t *attr,
-						void *(*main)(void *), void *arg);
-pthread_t			*spin_up_threads(int amount, int maxamount,
-						pthread_attr_t *attr, void *(*main)(void *),
-						void *arg);
+void				spin_down_threads(int amount,
+									pthread_t *threads);
+pthread_t			spin_up_thread(const pthread_attr_t *attr,
+									void *(*main)(void *),
+									void *arg);
+pthread_t			*spin_up_threads(int amount,
+									int cap,
+									const pthread_attr_t *attr,
+									void *(*main)(void *),
+									void *arg);
 
 #endif

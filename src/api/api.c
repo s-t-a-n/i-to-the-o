@@ -16,31 +16,6 @@
 #include "networking/network.h"
 #include "networking/requests.h"
 
-int	ito_decompile_package(t_package *package, const char * restrict formatstr, ...)
-{
-	va_list		args;
-
-	LOG_DEBUG("%s : %s\n","ito_decompile_package", "decompiling package!");
-	va_start(args, formatstr);
-	package->index = 0;
-	while (*formatstr)
-	{
-		if (*formatstr == '%')
-		{
-			formatstr++;
-			if (!get_data_from_package(&args, formatstr, package))
-			{
-				handle_error("ito_decompile_package", strerror(errno), NULL, ERR_CRIT);
-				return (ITO_ERROR);
-			}
-		}
-		formatstr++;
-	}
-	free(package->mem);
-	va_end(args);
-	return(ITO_SUCCESS);
-}
-
 t_package	*ito_compile_package(const char * restrict formatstr, ...)
 {
 	va_list		args;

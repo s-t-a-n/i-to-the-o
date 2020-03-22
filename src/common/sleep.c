@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "time.h"
-#include "ito_internal.h"
 
 int			sleep_mili(int miliseconds)
 {
@@ -37,8 +36,8 @@ int			sleep_seconds(int seconds)
 {
 	struct timespec req = {0};
 
-	req.tv_sec = 0;
-	req.tv_nsec = seconds * 1000000000L;
+	req.tv_sec = seconds;
+	req.tv_nsec = 0L;
 
 	return(nanosleep(&req, (struct timespec *)NULL));
 }

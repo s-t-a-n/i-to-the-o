@@ -23,19 +23,19 @@ typedef struct				s_queue
 {
 	pthread_mutex_t			lock;
 	pthread_cond_t			signal;
-	int						cap;
-	int						size;
-	int						front;
-	int						back;
-	void					**elements;
-}							t_queue;
+	int				cap;
+	int				size;
+	int				front;
+	int				back;
+	void				**elements;
+}					t_queue;
 
-void						queue_drop(t_queue *queue, void (*stubfree)());
-void						queue_pop(t_queue *queue);
-void						queue_push(t_queue *queue, void *element);
-void						*queue_peek(t_queue *queue);
-void						*queue_safe_get(t_queue *queue);
-void						queue_safe_add(t_queue *queue, void *element);
-t_queue						*queue_create(int cap);
+void					queue_drop(t_queue *queue, void (*stubfree)());
+void					queue_pop(t_queue *queue);
+void					queue_push(t_queue *queue, void *element);
+void					*queue_peek(t_queue *queue);
+void					*queue_safe_get(t_queue *queue);
+void					queue_safe_add(t_queue *queue, void *element);
+t_queue					*queue_create(int cap);
 
 #endif
