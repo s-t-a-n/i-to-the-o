@@ -1,0 +1,3 @@
+[submodule "src/PolyVector"]
+	path = src/PolyVector
+	url = https://github.com/s-t-a-n/PolyVector.git
